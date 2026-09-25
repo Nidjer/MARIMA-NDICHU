@@ -1,0 +1,2089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Harmony Music Store — Kenya's Trusted Music Store</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Arimo:wght@400;500;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css"/>
+<style>
+:root{
+--navy:#082243;
+--navy-mid:#0d2d57;
+--navy-light:#163a6b;
+--gold:#a08554;
+--gold-light:#c4a46a;
+--gold-dim:#7b6239;
+--red:#c02424;
+--bg:#161616;
+--bg-card:#202020;
+--bg-surface:#282828;
+--bg-raised:#333333;
+--border:#333333;
+--border-subtle:#3d3d3d;
+--text:#e8e8e8;
+--text-muted:#a8a8a8;
+--text-dim:#787878;
+--success:#27AE60;
+--error:#e63946;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Arimo',Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;}
+.font-serif{font-family:'EB Garamond',Georgia,serif;}
+.material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24;font-size:1.3rem;vertical-align:middle;}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:1000;background:rgba(22,22,22,.88);backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;padding:.75rem 2rem;gap:1rem;flex-wrap:wrap;}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.nav-logo-text{color:#fff;font-size:1.15rem;font-weight:700;font-family:'EB Garamond',serif;letter-spacing:.03em;}
+.nav-logo-text em{color:var(--gold);font-style:normal;}
+.nav-links{display:flex;gap:.2rem;flex-wrap:wrap;}
+.nav-link{background:transparent;color:rgba(232,232,232,.6);border:none;padding:7px 13px;border-radius:6px;cursor:pointer;font-family:'Arimo',sans-serif;font-size:.82rem;transition:all .2s;letter-spacing:.02em;}
+.nav-link:hover,.nav-link.active{background:rgba(160,133,84,.15);color:var(--gold-light);}
+.cart-btn{background:var(--gold-dim);color:#f0ead8;border:none;padding:8px 16px;border-radius:6px;font-weight:700;cursor:pointer;font-family:'Arimo',sans-serif;font-size:.85rem;display:flex;align-items:center;gap:6px;transition:all .2s;box-shadow:inset 0 1px 0 rgba(255,255,255,.1);}
+.cart-btn:hover{background:var(--gold);}
+.cart-count{background:var(--error);color:white;border-radius:50%;width:18px;height:18px;font-size:.7rem;display:inline-flex;align-items:center;justify-content:center;font-weight:700;}
+
+/* PAGES */
+.page{display:none;}.page.active{display:block;}
+
+/* HERO with shader canvas */
+.hero{position:relative;min-height:82vh;display:flex;align-items:center;overflow:hidden;padding:5rem 2rem;}
+#hero-canvas{position:absolute;inset:0;width:100%;height:100%;}
+.hero-inner{max-width:1200px;margin:0 auto;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;position:relative;z-index:2;}
+.hero-tag{display:inline-block;background:rgba(160,133,84,.12);border:1px solid rgba(160,133,84,.35);color:var(--gold-light);font-family:'Arimo',sans-serif;font-size:.75rem;padding:4px 14px;border-radius:20px;letter-spacing:3px;text-transform:uppercase;margin-bottom:1.5rem;}
+.hero h1{font-family:'EB Garamond',serif;font-size:clamp(2.2rem,5vw,4rem);color:#fff;line-height:1.08;margin-bottom:1.2rem;font-weight:500;}
+.hero h1 em{color:var(--gold-light);font-style:italic;}
+.hero p{color:rgba(232,232,232,.7);font-size:1rem;margin-bottom:2.5rem;max-width:460px;line-height:1.7;}
+.hero-cta{display:flex;gap:1rem;flex-wrap:wrap;}
+.btn-primary{background:linear-gradient(135deg,var(--gold-dim),#5a4520);color:#f0ead8;border:none;padding:13px 28px;border-radius:8px;font-family:'Arimo',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;letter-spacing:.04em;box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 4px 14px rgba(0,0,0,.4);transition:all .2s;}
+.btn-primary:hover{background:linear-gradient(135deg,var(--gold),#7b6239);transform:translateY(-2px);box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 8px 20px rgba(0,0,0,.45);}
+.btn-ghost{background:transparent;color:rgba(232,232,232,.8);border:1px solid rgba(232,232,232,.25);padding:13px 28px;border-radius:8px;font-family:'Arimo',sans-serif;font-size:.9rem;cursor:pointer;transition:all .2s;}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold-light);}
+
+.hero-visual{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.hero-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:14px;padding:1.4rem;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;backdrop-filter:blur(12px);transition:all .35s ease;cursor:pointer;}
+.hero-card:hover{transform:translateY(-10px) scale(1.03);border-color:var(--gold);box-shadow:0 15px 35px rgba(0,0,0,.45),0 0 20px rgba(160,133,84,.25);}
+.hero-card:hover .icon{transform:scale(1.15);}
+.hero-card .icon{font-size:2.2rem;margin-bottom:.5rem;transition:transform .35s ease;}
+.hero-card:first-child{grid-column:span 2;}
+.hero-card .icon{font-size:2.2rem;margin-bottom:.5rem;}
+.hero-card h3{color:#fff;font-size:.95rem;margin-bottom:.3rem;font-family:'EB Garamond',serif;font-weight:500;}
+.hero-card p{color:rgba(232,232,232,.5);font-size:.78rem;}
+
+/* TRUST BAR */
+.trust-bar{background:var(--navy);padding:11px 2rem;border-bottom:1px solid rgba(255,255,255,.05);}
+.trust-inner{max-width:1200px;margin:0 auto;display:flex;justify-content:space-around;align-items:center;flex-wrap:wrap;gap:.8rem;}
+.trust-item{display:flex;align-items:center;gap:6px;font-size:.8rem;font-weight:700;color:rgba(232,232,232,.7);padding:0 .5rem;letter-spacing:.02em;}
+.trust-item span{color:var(--gold-light);}
+
+/* SECTIONS */
+.sec{padding:4.5rem 2rem;}
+.sec-inner{max-width:1200px;margin:0 auto;}
+.sec-label{font-family:'Arimo',sans-serif;font-size:.7rem;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem;}
+.sec-title{font-family:'EB Garamond',serif;font-size:clamp(1.8rem,3vw,2.6rem);color:#fff;margin-bottom:.8rem;font-weight:500;}
+.sec-sub{color:var(--text-muted);font-size:.92rem;max-width:560px;margin-bottom:2.5rem;line-height:1.7;}
+
+/* SEARCH */
+.search-input{width:100%;border:1px solid var(--border-subtle);padding:12px 18px;border-radius:10px;font-family:'Arimo',sans-serif;font-size:.9rem;outline:none;margin-bottom:1.5rem;background:var(--bg-raised);color:var(--text);transition:border-color .2s;}
+.search-input::placeholder{color:var(--text-dim);}
+.search-input:focus{border-color:var(--gold-dim);box-shadow:0 0 0 3px rgba(123,98,57,.15);}
+
+/* CATEGORIES */
+.cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem;}
+.cat-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:1.6rem 1rem;text-align:center;cursor:pointer;transition:all .25s;}
+.cat-card:hover,.cat-card.active{border-color:var(--gold-dim);transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.4),0 0 0 1px rgba(160,133,84,.15);}
+.cat-icon{font-size:2.4rem;margin-bottom:.7rem;}
+.cat-card h3{font-size:.88rem;color:#e0d8cc;font-weight:700;letter-spacing:.02em;}
+.cat-card p{font-size:.74rem;color:var(--text-muted);}
+
+/* FILTER BAR */
+.filter-bar{display:flex;gap:.7rem;flex-wrap:wrap;margin-bottom:2rem;align-items:center;}
+.filter-btn{background:var(--bg-card);border:1px solid var(--border);color:var(--text-muted);padding:6px 16px;border-radius:20px;font-family:'Arimo',sans-serif;font-size:.8rem;cursor:pointer;transition:all .2s;}
+.filter-btn:hover,.filter-btn.active{background:var(--navy-mid);color:var(--gold-light);border-color:var(--navy-light);}
+.sort-select{background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:6px;font-family:'Arimo',sans-serif;font-size:.8rem;cursor:pointer;margin-left:auto;}
+
+/* PRODUCTS */
+.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.5rem;}
+.product-card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:all .3s;display:flex;flex-direction:column;}
+.product-card:hover{box-shadow:0 0 0 1px rgba(160,133,84,.3),0 12px 40px rgba(0,0,0,.5);transform:translateY(-4px);}
+.product-image{aspect-ratio:4/3;overflow:hidden;background:#1c1c1c;}
+.product-image img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s ease;}
+.product-image-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:3.6rem;background:radial-gradient(circle at 50% 40%,rgba(160,133,84,.16),rgba(20,20,20,.4));transition:transform .4s ease;}
+.product-card:hover .product-image-placeholder{transform:scale(1.08);}
+.product-card:hover .product-image img{transform:scale(1.08);}
+.product-badge{position:absolute;top:10px;left:10px;background:var(--gold-dim);color:#f0ead8;font-size:.65rem;font-weight:700;padding:3px 9px;border-radius:3px;font-family:'Arimo',sans-serif;text-transform:uppercase;letter-spacing:.04em;}
+.product-badge.new{background:var(--navy-mid);color:var(--gold-light);}
+.product-body{padding:1.2rem;flex:1;display:flex;flex-direction:column;}
+.product-brand{font-family:'Arimo',sans-serif;font-size:.68rem;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:.3rem;}
+.product-name{font-family:'EB Garamond',serif;font-size:1.05rem;color:#e8e0d0;margin-bottom:.4rem;line-height:1.3;font-weight:500;}
+.product-desc{font-family:'Arimo',sans-serif;font-size:.79rem;color:var(--text-muted);margin-bottom:.8rem;flex:1;line-height:1.55;}
+.stock-low{font-size:.75rem;font-weight:700;color:#e05050;margin-bottom:.5rem;font-family:'Arimo',sans-serif;}
+.stock-ok{font-size:.75rem;color:var(--text-dim);margin-bottom:.5rem;font-family:'Arimo',sans-serif;}
+.product-footer{display:flex;align-items:center;justify-content:space-between;margin-top:auto;gap:.4rem;flex-wrap:wrap;}
+.product-price{font-size:1.1rem;font-weight:700;color:#e8d8a0;font-family:'EB Garamond',serif;}
+.product-actions{display:flex;gap:.4rem;}
+.add-to-cart{background:var(--navy-mid);color:#e8e8e8;border:1px solid var(--navy-light);padding:8px 14px;border-radius:6px;font-family:'Arimo',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;transition:all .2s;}
+.add-to-cart:hover{background:var(--gold-dim);color:#f0ead8;border-color:var(--gold-dim);}
+.wish-btn{background:var(--bg-raised);border:1px solid var(--border-subtle);color:var(--text-muted);padding:8px 11px;border-radius:6px;cursor:pointer;font-size:.95rem;transition:all .2s;}
+.wish-btn:hover,.wish-btn.wished{background:rgba(200,60,60,.1);border-color:rgba(200,60,60,.4);color:#e05050;}
+
+/* WISHLIST */
+.wishlist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;margin-top:1rem;}
+.wish-card{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:1rem;display:flex;align-items:center;gap:.8rem;}
+.wish-card .wicon{font-size:2rem;}
+.wish-card h4{font-size:.83rem;color:#e0d8cc;font-family:'EB Garamond',serif;}
+.wish-card p{font-size:.8rem;color:var(--gold);font-weight:700;}
+.remove-wish{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:1rem;margin-left:auto;}
+.remove-wish:hover{color:var(--error);}
+
+/* LESSONS */
+.lessons-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.2rem;margin-bottom:3rem;}
+.lesson-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:1.8rem 1.5rem;text-align:center;transition:all .25s;position:relative;overflow:hidden;}
+.lesson-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(8,34,67,.3),transparent);pointer-events:none;}
+.lesson-card:hover{border-color:var(--gold-dim);transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,0,0,.4);}
+.lesson-card h3{color:#e0d8cc;font-size:1rem;margin-bottom:.5rem;font-family:'EB Garamond',serif;font-weight:500;}
+.lesson-card .price{color:var(--gold-light);font-weight:700;font-size:.95rem;margin-bottom:1rem;}
+.enroll-btn{background:var(--navy-mid);color:#e8e8e8;border:1px solid var(--navy-light);padding:8px 22px;border-radius:6px;font-family:'Arimo',sans-serif;font-size:.83rem;font-weight:700;cursor:pointer;transition:all .2s;}
+.enroll-btn:hover{background:var(--gold-dim);color:#f0ead8;border-color:var(--gold-dim);}
+
+/* FORMS */
+.form-box{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:2rem;margin-bottom:1.5rem;box-shadow:0 4px 20px rgba(0,0,0,.3);}
+.form-box h3{color:#e0d8cc;font-size:1.1rem;margin-bottom:1.2rem;font-family:'EB Garamond',serif;font-weight:500;}
+.form-row2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.form-group{display:flex;flex-direction:column;gap:5px;margin-bottom:1rem;}
+.form-group label{font-family:'Arimo',sans-serif;font-size:.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;}
+.form-group input,.form-group select,.form-group textarea{border:1px solid var(--border-subtle);padding:11px 14px;border-radius:8px;font-family:'Arimo',sans-serif;font-size:.88rem;outline:none;transition:all .2s;width:100%;background:linear-gradient(180deg,#262626,#1c1c1c);color:var(--text);box-shadow:inset 0 2px 5px rgba(0,0,0,.4);}
+.form-group input::placeholder,.form-group textarea::placeholder{color:var(--text-dim);}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:rgba(22,58,107,.9);box-shadow:0 0 0 3px rgba(22,58,107,.22),inset 0 2px 5px rgba(0,0,0,.4);}
+.form-group textarea{min-height:90px;resize:vertical;}
+.form-msg{display:none;padding:10px 14px;border-radius:6px;font-family:'Arimo',sans-serif;font-size:.85rem;margin-top:.5rem;}
+.form-msg.ok{background:rgba(39,174,96,.1);border:1px solid var(--success);color:var(--success);display:block;}
+.form-msg.err{background:rgba(230,57,70,.08);border:1px solid var(--error);color:var(--error);display:block;}
+
+/* BULK */
+.discount-box{background:linear-gradient(135deg,var(--navy),#0c2d55);border-radius:12px;padding:2rem;color:white;text-align:center;margin-top:1rem;display:none;border:1px solid rgba(255,255,255,.06);}
+.discount-box h3{color:var(--gold-light);font-size:1.8rem;margin-bottom:.5rem;font-family:'EB Garamond',serif;}
+.discount-box p{color:rgba(232,232,232,.7);font-size:.9rem;}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1.2rem;margin-bottom:2rem;}
+.stat-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;text-align:center;transition:all .2s;}
+.stat-card:hover{border-color:var(--border-subtle);}
+.stat-icon{font-size:2rem;margin-bottom:.5rem;}
+.stat-val{font-size:1.8rem;font-weight:500;color:#e8d8a0;font-family:'EB Garamond',serif;}
+.stat-label{font-size:.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.5px;}
+.stat-card.gold{border-color:var(--gold-dim);background:linear-gradient(135deg,rgba(123,98,57,.08),var(--bg-card));}
+
+/* ACTIVITY */
+.activity-list{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.activity-item{padding:1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:1rem;font-size:.86rem;}
+.activity-item:last-child{border-bottom:none;}
+.act-icon{font-size:1.3rem;}
+.act-info{flex:1;color:var(--text-muted);}
+.act-time{color:var(--text-dim);font-size:.73rem;white-space:nowrap;}
+.act-badge{background:var(--navy-mid);color:var(--gold-light);font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:3px;margin-right:.4rem;border:1px solid rgba(160,133,84,.2);}
+
+/* REVIEWS */
+.reviews-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.2rem;margin-top:1.5rem;}
+.review-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;transition:all .2s;}
+.review-card:hover{border-color:var(--border-subtle);}
+.review-stars{color:var(--gold);font-size:.9rem;margin-bottom:.6rem;letter-spacing:.1em;}
+.review-text{font-family:'EB Garamond',serif;font-size:.95rem;color:rgba(232,232,232,.75);font-style:italic;margin-bottom:.7rem;line-height:1.65;}
+.review-author{font-size:.75rem;color:var(--text-dim);font-weight:700;letter-spacing:.04em;}
+
+/* PAY SHOWCASE */
+.pay-cards-showcase{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;}
+.pay-showcase-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;text-align:center;transition:all .2s;}
+.pay-showcase-card img{width:80px;height:80px;object-fit:contain;margin-bottom:10px;}
+.pay-showcase-card:hover{border-color:var(--border-subtle);}
+.pay-showcase-card .psc-icon{font-size:2.2rem;margin-bottom:.5rem;}
+.pay-showcase-card .psc-name{font-weight:700;color:#e0d8cc;font-size:.88rem;font-family:'EB Garamond',serif;}
+.pay-showcase-card .psc-sub{color:var(--text-muted);font-size:.76rem;margin-top:2px;}
+
+/* CONTACT */
+.contact-section{background:var(--navy);padding:3.5rem 2rem;border-top:1px solid rgba(255,255,255,.05);}
+.contact-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start;}
+.contact-info h2{font-family:'EB Garamond',serif;font-size:2rem;color:#fff;margin-bottom:1rem;font-weight:500;}
+.contact-info h2 span{color:var(--gold-light);font-style:italic;}
+.contact-info p{color:rgba(232,232,232,.65);font-size:.9rem;margin-bottom:1.5rem;line-height:1.7;}
+.contact-detail{color:rgba(232,232,232,.6);font-size:.86rem;margin-bottom:.6rem;}
+.msg-form{display:flex;flex-direction:column;gap:.8rem;}
+.msg-form input,.msg-form textarea,.msg-form select{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#e8e8e8;padding:11px 14px;border-radius:8px;font-family:'Arimo',sans-serif;font-size:.88rem;outline:none;transition:border-color .2s;box-shadow:inset 0 2px 4px rgba(0,0,0,.3);}
+.msg-form input::placeholder,.msg-form textarea::placeholder{color:rgba(232,232,232,.3);}
+.msg-form input:focus,.msg-form textarea:focus{border-color:var(--gold-dim);}
+.msg-form textarea{min-height:90px;resize:vertical;}
+.msg-form select option{background:var(--navy);}
+.msg-send-btn{background:linear-gradient(135deg,var(--gold-dim),#5a4520);color:#f0ead8;border:none;padding:12px;border-radius:8px;font-weight:700;font-family:'Arimo',sans-serif;font-size:.92rem;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.1);transition:all .2s;}
+.msg-send-btn:hover{background:linear-gradient(135deg,var(--gold),#7b6239);}
+
+/* NEWSLETTER */
+.newsletter{background:#131313;padding:4rem 2rem;text-align:center;border-top:1px solid rgba(255,255,255,.04);}
+.newsletter h2{font-family:'EB Garamond',serif;font-size:2rem;color:#fff;margin-bottom:.5rem;font-weight:500;}
+.newsletter h2 em{color:var(--gold-light);font-style:italic;}
+.newsletter p{color:var(--text-muted);font-size:.9rem;margin-bottom:2rem;}
+.newsletter-form{display:flex;max-width:480px;margin:0 auto;}
+.newsletter-form input{flex:1;background:#202020;border:1px solid var(--border-subtle);color:#e8e8e8;padding:12px 18px;font-family:'Arimo',sans-serif;font-size:.9rem;border-radius:8px 0 0 8px;outline:none;}
+.newsletter-form input::placeholder{color:var(--text-dim);}
+.newsletter-form button{background:var(--gold-dim);color:#f0ead8;border:none;padding:12px 22px;font-weight:700;font-family:'Arimo',sans-serif;cursor:pointer;border-radius:0 8px 8px 0;white-space:nowrap;transition:background .2s;}
+.newsletter-form button:hover{background:var(--gold);}
+
+/* CART */
+.cart-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:2000;}
+.cart-overlay.open{display:block;}
+.cart-panel{position:fixed;right:0;top:0;height:100vh;width:400px;max-width:95vw;background:var(--bg-card);box-shadow:-10px 0 50px rgba(0,0,0,.5);display:flex;flex-direction:column;z-index:2001;transform:translateX(100%);transition:transform .3s ease;border-left:1px solid var(--border);}
+.cart-panel.open{transform:translateX(0);}
+.cart-header{padding:1.3rem 1.5rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--navy);}
+.cart-header h2{color:#fff;font-size:1.05rem;font-family:'EB Garamond',serif;font-weight:500;letter-spacing:.04em;}
+.cart-close{background:none;border:none;color:rgba(255,255,255,.5);font-size:1.5rem;cursor:pointer;line-height:1;}
+.cart-items{flex:1;overflow-y:auto;padding:1.3rem;}
+.cart-item{display:flex;gap:1rem;padding:1rem 0;border-bottom:1px solid var(--border);align-items:center;}
+.cart-item-icon{font-size:2rem;width:48px;text-align:center;flex-shrink:0;}
+.cart-item-info{flex:1;}
+.cart-item-name{font-size:.86rem;font-weight:700;color:#e0d8cc;margin-bottom:2px;font-family:'EB Garamond',serif;}
+.cart-item-price{color:var(--gold);font-size:.86rem;font-weight:700;}
+.cart-item-qty{display:flex;align-items:center;gap:7px;margin-top:5px;}
+.qty-btn{width:24px;height:24px;border:1px solid var(--border-subtle);background:var(--bg-raised);color:var(--text);border-radius:4px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.qty-btn:hover{border-color:var(--gold-dim);}
+.qty-num{font-size:.86rem;font-weight:700;min-width:22px;text-align:center;color:var(--text);}
+.cart-remove{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:1rem;padding:4px;transition:color .2s;}
+.cart-remove:hover{color:var(--error);}
+.cart-footer{padding:1.3rem;border-top:1px solid var(--border);}
+.cart-total-row{display:flex;justify-content:space-between;margin-bottom:.4rem;font-size:.88rem;color:var(--text-muted);}
+.cart-total-row.grand{font-weight:700;font-size:1rem;color:#e0d8cc;border-top:1px solid var(--border);padding-top:.6rem;margin-top:.4rem;}
+.checkout-btn{width:100%;background:linear-gradient(135deg,var(--gold-dim),#5a4520);color:#f0ead8;border:none;padding:13px;font-size:.92rem;font-weight:700;font-family:'Arimo',sans-serif;border-radius:8px;cursor:pointer;margin-top:.8rem;box-shadow:inset 0 1px 0 rgba(255,255,255,.1);transition:all .2s;}
+.checkout-btn:hover{background:linear-gradient(135deg,var(--gold),#7b6239);}
+.cart-empty{text-align:center;color:var(--text-dim);padding:3rem 0;}
+
+/* PAYMENT MODAL */
+.pay-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:3000;align-items:center;justify-content:center;}
+.pay-overlay.open{display:flex;}
+.pay-box{background:var(--bg-card);border:1px solid var(--border);border-radius:18px;width:500px;max-width:95vw;max-height:92vh;overflow-y:auto;padding:2rem;box-shadow:0 20px 60px rgba(0,0,0,.6);}
+.pay-box h2{color:#e0d8cc;font-size:1.4rem;margin-bottom:.3rem;font-family:'EB Garamond',serif;font-weight:500;}
+.pay-total{font-size:2rem;font-weight:500;color:#e8d8a0;margin:1rem 0;font-family:'EB Garamond',serif;}
+.pay-methods{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem;margin-bottom:1.5rem;}
+.pay-method{border:1px solid var(--border-subtle);border-radius:10px;padding:.9rem .5rem;text-align:center;cursor:pointer;transition:all .2s;font-size:.76rem;font-weight:700;background:var(--bg-surface);}
+.pay-method:hover,.pay-method.selected{border-color:var(--gold-dim);background:rgba(123,98,57,.1);}
+.pm-icon{font-size:1.5rem;display:block;margin-bottom:4px;}
+.pm-name{color:#e0d8cc;}
+.pm-sub{color:var(--text-dim);font-size:.65rem;font-weight:400;margin-top:2px;}
+.pay-panel{display:none;}.pay-panel.active{display:block;}
+.pay-proceed-btn{width:100%;padding:13px;border:none;border-radius:8px;font-size:.95rem;font-weight:700;font-family:'Arimo',sans-serif;cursor:pointer;margin-bottom:.7rem;}
+.pay-cancel-btn{width:100%;background:none;color:var(--text-dim);border:1px solid var(--border);padding:11px;border-radius:8px;font-family:'Arimo',sans-serif;cursor:pointer;transition:border-color .2s;}
+.pay-cancel-btn:hover{border-color:var(--border-subtle);}
+.mpesa-btn{background:#2E7D32;color:white;}
+.airtel-btn{background:#B71C1C;color:white;}
+.card-btn{background:#283593;color:white;}
+.paypal-btn{background:#003087;color:white;}
+.bank-btn{background:var(--navy);color:#e8e8e8;}
+.bank-detail-box{background:var(--bg-raised);border:1px solid var(--border);border-radius:8px;padding:1rem 1.2rem;margin-bottom:.8rem;font-size:.86rem;}
+.bank-detail-row{display:flex;justify-content:space-between;padding:.3rem 0;border-bottom:1px solid var(--border);}
+.bank-detail-row:last-child{border:none;}
+.bank-detail-row span{color:var(--text-muted);}
+.bank-detail-row strong{color:#e0d8cc;}
+.pay-processing,.pay-success{display:none;text-align:center;padding:2.5rem 0;}
+.spinner{font-size:2.5rem;animation:spin 1s linear infinite;display:inline-block;}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.big-check{font-size:4rem;}
+.pay-success h3{color:var(--success);font-size:1.4rem;margin:.8rem 0 .4rem;font-family:'EB Garamond',serif;}
+.pay-success p{color:var(--text-muted);font-size:.9rem;}
+.order-ref{background:var(--bg-raised);border:1px solid var(--border);border-radius:8px;padding:.8rem 1rem;font-size:.86rem;margin:.8rem 0;color:#e0d8cc;}
+.order-ref strong{color:var(--gold-light);}
+.divider{border:none;border-top:1px solid var(--border);margin:1.2rem 0;}
+
+/* FOOTER */
+footer{background:#101010;padding:4rem 2rem 2rem;border-top:1px solid rgba(255,255,255,.04);}
+.footer-grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:3rem;margin-bottom:3rem;}
+.footer-brand-name{color:#fff;font-size:1.3rem;font-family:'EB Garamond',serif;font-weight:500;}
+.footer-brand-name em{color:var(--gold-light);font-style:italic;}
+.footer-brand p{color:rgba(232,232,232,.4);font-size:.86rem;margin-top:.8rem;line-height:1.7;}
+.footer-social{display:flex;gap:.7rem;margin-top:1.2rem;}
+.social-btn{width:32px;height:32px;border:1px solid rgba(255,255,255,.12);border-radius:6px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.4);text-decoration:none;font-size:.8rem;transition:all .2s;}
+.social-btn:hover{border-color:var(--gold-dim);color:var(--gold-light);}
+.footer-col h4{color:var(--gold);font-size:.7rem;letter-spacing:3px;text-transform:uppercase;margin-bottom:1.1rem;}
+.footer-col ul{list-style:none;}
+.footer-col ul li{margin-bottom:.5rem;}
+.footer-col ul li a{color:rgba(232,232,232,.4);text-decoration:none;font-size:.86rem;transition:color .2s;}
+.footer-col ul li a:hover{color:var(--gold-light);}
+.footer-bottom{max-width:1200px;margin:0 auto;border-top:1px solid rgba(255,255,255,.05);padding-top:1.3rem;display:flex;justify-content:space-between;font-size:.76rem;color:rgba(232,232,232,.3);flex-wrap:wrap;gap:.8rem;}
+
+/* TOAST */
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(100px);background:var(--navy);color:#e8e8e8;padding:11px 22px;border-radius:8px;font-size:.86rem;z-index:9999;transition:transform .3s ease;pointer-events:none;border-left:3px solid var(--gold-dim);box-shadow:0 4px 24px rgba(0,0,0,.5);white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* Section bg */
+.sec-dark{background:var(--bg);}
+.sec-card{background:var(--bg-card);}
+.sec-navy{background:var(--navy);}
+
+/* === DELIVERY / GEO TRACKING ADDITIONS === */
+.fulfill-toggle{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;}
+.fulfill-btn{background:var(--bg-surface);border:1px solid var(--border-subtle);color:var(--text-muted);padding:11px 8px;border-radius:8px;font-family:'Arimo',sans-serif;font-size:.84rem;font-weight:700;cursor:pointer;transition:all .2s;}
+.fulfill-btn:hover{border-color:var(--gold-dim);}
+.fulfill-btn.selected{background:rgba(123,98,57,.15);border-color:var(--gold-dim);color:var(--gold-light);}
+.price-breakdown{font-size:.86rem;color:var(--text-muted);margin-bottom:.8rem;}
+.price-breakdown .pb-row{display:flex;justify-content:space-between;padding:.25rem 0;}
+.price-breakdown .pb-row.free{color:var(--success);}
+.price-breakdown .pb-row.grand{font-weight:700;color:#e0d8cc;border-top:1px solid var(--border);padding-top:.5rem;margin-top:.3rem;}
+.loc-btn{background:var(--navy-mid);color:#e8e8e8;border:1px solid var(--navy-light);padding:9px 14px;border-radius:8px;font-family:'Arimo',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:6px;}
+.loc-btn:hover{background:var(--gold-dim);border-color:var(--gold-dim);}
+.loc-status{font-size:.78rem;color:var(--text-muted);margin-top:.4rem;display:flex;align-items:center;gap:6px;}
+.loc-status.ok{color:var(--success);}
+.loc-status.err{color:var(--error);}
+.status-pill{display:inline-flex;align-items:center;gap:5px;font-size:.7rem;font-weight:700;padding:4px 11px;border-radius:20px;letter-spacing:.03em;text-transform:uppercase;}
+.status-pill.placed{background:rgba(160,133,84,.12);color:var(--gold-light);border:1px solid rgba(160,133,84,.3);}
+.status-pill.preparing{background:rgba(160,133,84,.18);color:var(--gold-light);border:1px solid rgba(160,133,84,.4);}
+.status-pill.out_for_delivery{background:rgba(22,58,107,.3);color:#7fb3ff;border:1px solid rgba(22,58,107,.6);}
+.status-pill.delivered{background:rgba(39,174,96,.12);color:var(--success);border:1px solid rgba(39,174,96,.35);}
+.status-pill.ready_for_pickup{background:rgba(160,133,84,.18);color:var(--gold-light);border:1px solid rgba(160,133,84,.4);}
+.status-pill.requested{background:rgba(160,133,84,.12);color:var(--gold-light);border:1px solid rgba(160,133,84,.3);}
+.status-pill.picked_up{background:rgba(22,58,107,.3);color:#7fb3ff;border:1px solid rgba(22,58,107,.6);}
+.status-pill.in_progress{background:rgba(200,140,40,.15);color:#e0b860;border:1px solid rgba(200,140,40,.4);}
+.status-pill.completed{background:rgba(39,174,96,.12);color:var(--success);border:1px solid rgba(39,174,96,.35);}
+.status-pill.confirmed{background:rgba(22,58,107,.3);color:#7fb3ff;border:1px solid rgba(22,58,107,.6);}
+.status-pill.cancelled{background:rgba(230,57,70,.1);color:var(--error);border:1px solid rgba(230,57,70,.35);}
+
+.track-timeline{display:flex;align-items:center;margin:1.4rem 0 1.6rem;}
+.track-step{flex:1;text-align:center;position:relative;}
+.track-step .dot{width:22px;height:22px;border-radius:50%;background:var(--bg-raised);border:2px solid var(--border-subtle);margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:.7rem;color:var(--text-dim);position:relative;z-index:2;transition:all .3s;}
+.track-step.done .dot{background:var(--gold-dim);border-color:var(--gold-dim);color:#fff;}
+.track-step.active .dot{background:var(--navy-mid);border-color:#7fb3ff;color:#7fb3ff;box-shadow:0 0 0 4px rgba(127,179,255,.15);}
+.track-step .line{position:absolute;top:11px;left:-50%;width:100%;height:2px;background:var(--border-subtle);z-index:1;}
+.track-step:first-child .line{display:none;}
+.track-step.done .line,.track-step.active .line{background:var(--gold-dim);}
+.track-step span{font-size:.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;}
+.track-step.done span,.track-step.active span{color:#e0d8cc;}
+
+.map-box{height:260px;border-radius:12px;overflow:hidden;border:1px solid var(--border);margin-bottom:1rem;background:#202020;}
+.map-box .leaflet-container{background:#202020;}
+.eta-line{display:flex;justify-content:space-between;align-items:center;font-size:.84rem;color:var(--text-muted);margin-bottom:1rem;flex-wrap:wrap;gap:.5rem;}
+.eta-line strong{color:#e8d8a0;}
+
+.track-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:3500;align-items:center;justify-content:center;padding:1rem;}
+.track-overlay.open{display:flex;}
+.track-box{background:var(--bg-card);border:1px solid var(--border);border-radius:18px;width:560px;max-width:96vw;max-height:92vh;overflow-y:auto;padding:1.8rem;box-shadow:0 20px 60px rgba(0,0,0,.6);}
+.track-box h2{color:#e0d8cc;font-size:1.25rem;margin-bottom:.2rem;font-family:'EB Garamond',serif;font-weight:500;}
+.track-close-btn{width:100%;background:none;color:var(--text-dim);border:1px solid var(--border);padding:11px;border-radius:8px;font-family:'Arimo',sans-serif;cursor:pointer;transition:border-color .2s;margin-top:.4rem;}
+.track-close-btn:hover{border-color:var(--border-subtle);}
+
+.order-row{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:1rem 1.2rem;margin-bottom:.8rem;display:flex;flex-wrap:wrap;align-items:center;gap:.7rem;}
+.order-row .or-main{flex:1;min-width:180px;}
+.order-row .or-ref{font-family:'EB Garamond',serif;color:#e0d8cc;font-weight:500;font-size:.95rem;}
+.order-row .or-meta{font-size:.78rem;color:var(--text-muted);margin-top:2px;}
+.order-row .or-actions{display:flex;gap:.4rem;flex-wrap:wrap;}
+.mini-btn{background:var(--bg-raised);border:1px solid var(--border-subtle);color:var(--text);padding:6px 12px;border-radius:6px;font-family:'Arimo',sans-serif;font-size:.74rem;font-weight:700;cursor:pointer;transition:all .2s;}
+.mini-btn:hover{border-color:var(--gold-dim);color:var(--gold-light);}
+.mini-btn.primary{background:var(--gold-dim);border-color:var(--gold-dim);color:#f0ead8;}
+.mini-btn.primary:hover{background:var(--gold);}
+.empty-note{color:var(--text-dim);font-size:.86rem;padding:1.5rem;text-align:center;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;}
+
+@media(max-width:768px){
+  nav{padding:.7rem 1rem;}
+  .hero-inner,.contact-inner{grid-template-columns:1fr;}
+  .hero-visual,.footer-grid{display:block;}
+  .cat-grid,.pay-methods{grid-template-columns:1fr 1fr;}
+  .form-row2{grid-template-columns:1fr;}
+  .footer-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;}
+}
+
+/* === AI ASSISTANT CHATBOT === */
+.ai-chat-launcher{position:fixed;bottom:1.6rem;right:1.6rem;z-index:2500;background:linear-gradient(135deg,var(--gold-dim),#5a4520);color:#f0ead8;border:none;width:58px;height:58px;border-radius:50%;font-size:1.5rem;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;transition:transform .2s;}
+.ai-chat-launcher:hover{transform:translateY(-3px) scale(1.05);}
+.ai-chat-launcher .ping{position:absolute;top:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:var(--success);border:2px solid var(--bg);}
+.ai-chat-panel{position:fixed;bottom:1.6rem;right:1.6rem;z-index:2600;width:360px;max-width:92vw;height:500px;max-height:78vh;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.55);display:none;flex-direction:column;overflow:hidden;}
+.ai-chat-panel.open{display:flex;}
+.ai-chat-header{background:var(--navy);padding:1rem 1.2rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.06);}
+.ai-chat-header-title{display:flex;align-items:center;gap:9px;}
+.ai-chat-header-title .dot{width:8px;height:8px;border-radius:50%;background:var(--success);flex-shrink:0;}
+.ai-chat-header-title h4{color:#fff;font-family:'EB Garamond',serif;font-size:1rem;font-weight:500;}
+.ai-chat-header-title span{color:rgba(232,232,232,.5);font-size:.72rem;display:block;margin-top:1px;}
+.ai-chat-close{background:none;border:none;color:rgba(255,255,255,.5);font-size:1.3rem;cursor:pointer;line-height:1;}
+.ai-chat-log{flex:1;overflow-y:auto;padding:1rem 1.1rem;display:flex;flex-direction:column;gap:.7rem;}
+.ai-msg{max-width:82%;padding:9px 13px;border-radius:12px;font-size:.85rem;line-height:1.5;font-family:'Arimo',sans-serif;}
+.ai-msg.bot{background:var(--bg-raised);color:var(--text);align-self:flex-start;border-bottom-left-radius:3px;border:1px solid var(--border-subtle);}
+.ai-msg.user{background:var(--gold-dim);color:#f0ead8;align-self:flex-end;border-bottom-right-radius:3px;}
+.ai-msg.typing{color:var(--text-dim);font-style:italic;}
+.ai-chat-suggestions{display:flex;flex-wrap:wrap;gap:6px;padding:0 1.1rem .8rem;}
+.ai-chip{background:var(--bg-raised);border:1px solid var(--border-subtle);color:var(--text-muted);border-radius:14px;padding:5px 11px;font-size:.72rem;cursor:pointer;font-family:'Arimo',sans-serif;transition:all .2s;}
+.ai-chip:hover{border-color:var(--gold-dim);color:var(--gold-light);}
+.ai-chat-input{display:flex;border-top:1px solid var(--border);padding:.6rem;gap:.5rem;}
+.ai-chat-input input{flex:1;background:var(--bg-raised);border:1px solid var(--border-subtle);color:var(--text);border-radius:8px;padding:9px 12px;font-family:'Arimo',sans-serif;font-size:.85rem;outline:none;}
+.ai-chat-input input:focus{border-color:var(--gold-dim);}
+.ai-chat-input button{background:var(--gold-dim);color:#f0ead8;border:none;border-radius:8px;padding:0 16px;font-weight:700;cursor:pointer;font-family:'Arimo',sans-serif;font-size:.85rem;}
+.ai-chat-input button:hover{background:var(--gold);}
+@media(max-width:480px){.ai-chat-panel{width:94vw;height:70vh;right:3vw;bottom:1rem;}}
+
+/* === ADMIN LOGIN GATE === */
+.admin-login-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:4000;align-items:center;justify-content:center;padding:1rem;}
+.admin-login-overlay.open{display:flex;}
+.admin-login-box{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;width:380px;max-width:94vw;padding:2rem;box-shadow:0 20px 60px rgba(0,0,0,.6);text-align:center;}
+.admin-login-box .icon{font-size:2.2rem;margin-bottom:.6rem;}
+.admin-login-box h2{color:#e0d8cc;font-size:1.2rem;margin-bottom:.4rem;font-family:'EB Garamond',serif;font-weight:500;}
+.admin-login-box p{color:var(--text-muted);font-size:.83rem;margin-bottom:1.3rem;}
+.admin-login-box input{width:100%;border:1px solid var(--border-subtle);padding:11px 14px;border-radius:8px;font-family:'Arimo',sans-serif;font-size:.9rem;outline:none;background:linear-gradient(180deg,#262626,#1c1c1c);color:var(--text);box-shadow:inset 0 2px 5px rgba(0,0,0,.4);margin-bottom:.7rem;text-align:center;}
+.admin-login-box input:focus{border-color:var(--gold-dim);}
+.admin-login-err{color:var(--error);font-size:.8rem;margin-bottom:.6rem;display:none;}
+.admin-login-err.show{display:block;}
+.admin-login-actions{display:flex;gap:.6rem;}
+.admin-login-actions button{flex:1;padding:11px;border-radius:8px;font-family:'Arimo',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;border:none;}
+.admin-login-cancel{background:var(--bg-raised);color:var(--text-muted);border:1px solid var(--border-subtle)!important;}
+.admin-login-submit{background:linear-gradient(135deg,var(--gold-dim),#5a4520);color:#f0ead8;}
+.admin-login-submit:hover{background:linear-gradient(135deg,var(--gold),#7b6239);}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <span style="font-size:1.5rem;">🎵</span>
+    <span class="nav-logo-text">Harmony <em>Music Store</em></span>
+  </a>
+  <div class="nav-links">
+    <button class="nav-link active" onclick="showPage('home',this)">Home</button>
+    <button class="nav-link" onclick="showPage('shop',this)">Shop</button>
+    <button class="nav-link" onclick="showPage('lessons',this)">Lessons</button>
+    <button class="nav-link" onclick="showPage('dashboard',this)">My Account</button>
+    <button class="nav-link" onclick="showPage('admin',this)">Admin</button>
+  </div>
+  <div style="display:flex;align-items:center;gap:.6rem;">
+    <button class="cart-btn" onclick="openCart()">
+      <span class="material-symbols-outlined" style="font-size:1.1rem;">shopping_bag</span>
+      Cart <span class="cart-count" id="cartCount">0</span>
+    </button>
+  </div>
+</nav>
+
+<!-- HOME PAGE -->
+<div class="page active" id="page-home">
+
+  <!-- HERO with animated WebGL shader background -->
+  <section class="hero">
+    <canvas id="hero-canvas"></canvas>
+    <div class="hero-inner">
+      <div>
+        <div class="hero-tag">🇰🇪 Kenya's Trusted Music Store</div>
+        <h1 class="font-serif">Find the Instrument<br><em>That Fits Your Sound</em></h1>
+        <p>From your first keyboard to your dream guitar, we help musicians across Kenya find quality instruments they can rely on.</p>
+        <div class="hero-cta">
+          <button class="btn-primary" onclick="showPage('shop',null)">Explore Collection</button>
+          <button class="btn-ghost" onclick="document.getElementById('contact-anchor').scrollIntoView({behavior:'smooth'})">Get in Touch</button>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-card"><div class="icon">🎹</div><h3>Keyboards &amp; Pianos</h3><p>Beginner digital to concert grand</p></div>
+        <div class="hero-card"><div class="icon">🎸</div><h3>Guitars</h3><p>Acoustic, electric &amp; classical</p></div>
+        <div class="hero-card"><div class="icon">🎓</div><h3>Music Lessons</h3><p>Online &amp; in-person training</p></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="trust-bar">
+    <div class="trust-inner">
+      <div class="trust-item"><span>🚚</span> Free Delivery in Nairobi Over KES 20,000</div>
+      <div class="trust-item"><span>📱</span> M-Pesa · Airtel · Card · PayPal · Bank</div>
+      <div class="trust-item"><span>✅</span> Authentic Products Only</div>
+      <div class="trust-item"><span>🎵</span> Expert Support</div>
+      <div class="trust-item"><span>🔒</span> Secure Checkout</div>
+    </div>
+  </div>
+
+  <div class="sec sec-card">
+    <div class="sec-inner">
+      <div class="sec-label">Featured This Week</div>
+      <h2 class="sec-title">Top Picks for You</h2>
+      <p class="sec-sub">Our most popular instruments — loved by beginners and professionals across Kenya.</p>
+      <div class="products-grid" id="featuredGrid"></div>
+      <div style="text-align:center;margin-top:2.5rem;"><button class="btn-primary" onclick="showPage('shop',null)">View All Products →</button></div>
+    </div>
+  </div>
+
+  <div class="sec sec-dark">
+    <div class="sec-inner">
+      <div class="sec-label">Flexible Payments</div>
+      <h2 class="sec-title">Pay Your Way</h2>
+      <p class="sec-sub">We accept all major payment methods — choose what works for you.</p>
+      <div class="pay-cards-showcase">
+        <div class="pay-showcase-card">
+    <img src="images/mpesalogo.jpg" alt="M-Pesa">
+    <div class="psc-name">M-Pesa</div>
+    <div class="psc-sub">Safaricom STK Push</div>
+</div>
+        <div class="pay-showcase-card">
+    <img src="images/airtelmoney.png" alt="Airtel Money">
+    <div class="psc-name">Airtel Money</div>
+    <div class="psc-sub">Instant Payment</div>
+</div>
+        <div class="pay-showcase-card"><div class="psc-icon">💳</div><div class="psc-name">Debit/Credit Card</div><div class="psc-sub">Visa &amp; Mastercard</div></div>
+        <div class="pay-showcase-card"><div class="psc-icon">🅿️</div><div class="psc-name">PayPal</div><div class="psc-sub">International payments</div></div>
+        <div class="pay-showcase-card"><div class="psc-icon">🏦</div><div class="psc-name">Bank Transfer</div><div class="psc-sub">Equity, KCB &amp; more</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec sec-card">
+    <div class="sec-inner">
+      <div class="sec-label">What People Say</div>
+      <h2 class="sec-title">Customer Reviews</h2>
+      <p class="sec-sub">Rated 4.9/5 by musicians across Kenya.</p>
+      <div class="reviews-grid">
+        <div class="review-card"><div class="review-stars">★★★★★</div><div class="review-text">"Excellent keyboard and fast delivery. Paid via M-Pesa — super easy and instant!"</div><div class="review-author">— James M., Nairobi</div></div>
+        <div class="review-card"><div class="review-stars">★★★★★</div><div class="review-text">"Ordered 3 keyboards for our church worship team. Bank transfer was smooth and delivery was perfect."</div><div class="review-author">— Pastor Grace K., Mombasa</div></div>
+        <div class="review-card"><div class="review-stars">★★★★★</div><div class="review-text">"I'm in the UK and paid with PayPal. The guitar arrived in Kisumu within 3 days. Amazing service!"</div><div class="review-author">— David O., London/Kisumu</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="contact-anchor" class="contact-section">
+    <div class="contact-inner">
+      <div class="contact-info">
+        <div class="sec-label">Get in Touch</div>
+        <h2>Let us help you find your <span>perfect instrument</span></h2>
+        <p>Not sure which keyboard suits your level? Our music experts reply within 24 hours.</p>
+        <div class="contact-detail">📧 hello@harmonymusic.com</div>
+        <div class="contact-detail">📍 Nairobi, Kenya · Nationwide Delivery</div>
+        <div class="contact-detail">⏱ Response within 24 hours</div>
+      </div>
+      <div>
+        <div class="msg-form">
+          <input type="text" id="msgName" placeholder="Your Name"/>
+          <input type="email" id="msgEmail" placeholder="Email Address"/>
+          <select id="msgSubject"><option value="">Select a topic…</option><option>Product Recommendation</option><option>Order Status</option><option>Shipping Question</option><option>Returns &amp; Exchanges</option><option>Bulk / School Order</option><option>Music Lessons Enquiry</option><option>Other</option></select>
+          <textarea id="msgBody" placeholder="Tell us how we can help…"></textarea>
+          <button class="msg-send-btn" onclick="sendMessage()">Send Message 📨</button>
+          <div class="form-msg" id="msgSuccess"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="newsletter">
+    <h2 class="font-serif">Stay in tune <em>with us</em></h2>
+    <p>Get new arrivals, exclusive deals, and music tips delivered to your inbox.</p>
+    <div class="newsletter-form">
+      <input type="email" placeholder="Your email address" id="nlEmail"/>
+      <button onclick="subscribeNewsletter()">Subscribe</button>
+    </div>
+  </div>
+</div>
+
+<!-- SHOP PAGE -->
+<div class="page" id="page-shop">
+  <div class="sec sec-dark">
+    <div class="sec-inner">
+      <div class="sec-label">Our Collection</div>
+      <h2 class="sec-title">Shop All Instruments</h2>
+      <input class="search-input" id="shopSearch" placeholder="🔍  Search by name or brand…" oninput="renderShop()"/>
+      <div class="cat-grid">
+        <div class="cat-card active" onclick="setCategory('all',this)"><div class="cat-icon">🎵</div><h3>All</h3><p>View everything</p></div>
+        <div class="cat-card" onclick="setCategory('keyboard',this)"><div class="cat-icon">🎹</div><h3>Keyboards</h3><p>Digital pianos &amp; synths</p></div>
+        <div class="cat-card" onclick="setCategory('piano',this)"><div class="cat-icon">🎼</div><h3>Pianos</h3><p>Acoustic &amp; grand</p></div>
+        <div class="cat-card" onclick="setCategory('guitar',this)"><div class="cat-icon">🎸</div><h3>Guitars</h3><p>Acoustic, electric &amp; bass</p></div>
+      </div>
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="setCategory('all',null,this)">All</button>
+        <button class="filter-btn" onclick="setCategory('keyboard',null,this)">Keyboards</button>
+        <button class="filter-btn" onclick="setCategory('piano',null,this)">Pianos</button>
+        <button class="filter-btn" onclick="setCategory('guitar',null,this)">Guitars</button>
+        <select class="sort-select" onchange="currentSort=this.value;renderShop()">
+          <option value="default">Sort: Featured</option>
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+          <option value="name">Name A–Z</option>
+        </select>
+      </div>
+      <div class="products-grid" id="shopGrid"></div>
+      <div style="margin-top:3rem;">
+        <h3 class="font-serif" style="color:#e0d8cc;font-weight:500;margin-bottom:1rem;font-size:1.3rem;">❤️ My Wishlist</h3>
+        <div id="wishlistGrid" class="wishlist-grid"></div>
+      </div>
+      <div class="form-box" style="margin-top:3rem;">
+        <h3>🏫 Bulk Order — Schools &amp; Churches</h3>
+        <p style="font-size:.88rem;color:var(--text-muted);margin-bottom:1rem;">Order 5+ instruments and unlock automatic discounts.</p>
+        <div class="form-row2">
+          <div class="form-group"><label>Instrument Type</label><select id="bulkType"><option>Keyboards</option><option>Guitars</option><option>Pianos</option><option>Mixed</option></select></div>
+          <div class="form-group"><label>Quantity</label><input type="number" id="bulkQty" placeholder="e.g. 10" min="1"/></div>
+        </div>
+        <button class="btn-primary" onclick="calcBulk()">Calculate Discount</button>
+        <div id="bulkResult" class="discount-box"><h3 id="bulkDiscountPct"></h3><p id="bulkDiscountMsg"></p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LESSONS PAGE -->
+<div class="page" id="page-lessons">
+  <div class="sec sec-dark">
+    <div class="sec-inner">
+      <div class="sec-label">Learn &amp; Grow</div>
+      <h2 class="sec-title">Music Lessons &amp; Services</h2>
+      <p class="sec-sub">Book lessons or request an instrument repair.</p>
+      <div class="lessons-grid">
+        <div class="lesson-card"><div style="font-size:2.2rem;margin-bottom:.7rem;">🎹</div><h3>Beginner Piano</h3><div class="price">KES 5,000 / month</div><button class="enroll-btn" onclick="prefillLesson('Piano')">Book Now</button></div>
+        <div class="lesson-card"><div style="font-size:2.2rem;margin-bottom:.7rem;">🎸</div><h3>Guitar Lessons</h3><div class="price">KES 4,500 / month</div><button class="enroll-btn" onclick="prefillLesson('Guitar')">Book Now</button></div>
+        <div class="lesson-card"><div style="font-size:2.2rem;margin-bottom:.7rem;">🎼</div><h3>Music Theory</h3><div class="price">KES 3,000 / month</div><button class="enroll-btn" onclick="prefillLesson('Music Theory')">Book Now</button></div>
+        <div class="lesson-card"><div style="font-size:2.2rem;margin-bottom:.7rem;">⛪</div><h3>Church Music Training</h3><div class="price">KES 6,000 / month</div><button class="enroll-btn" onclick="prefillLesson('Church Worship')">Book Now</button></div>
+      </div>
+      <div class="form-box">
+        <h3>📅 Book a Lesson</h3>
+        <div class="form-row2">
+          <div class="form-group"><label>Lesson Type</label><select id="lessonType"><option>Piano</option><option>Guitar</option><option>Music Theory</option><option>Church Worship</option></select></div>
+          <div class="form-group"><label>Your Name</label><input type="text" id="lessonName" placeholder="Full name"/></div>
+        </div>
+        <div class="form-row2">
+          <div class="form-group"><label>Your Phone</label><input type="tel" id="lessonPhone" placeholder="+254 7XX XXX XXX"/></div>
+          <div class="form-group"><label>Date</label><input type="date" id="lessonDate"/></div>
+        </div>
+        <div class="form-row2">
+          <div class="form-group"><label>Time</label><input type="time" id="lessonTime"/></div>
+          <div class="form-group"><label>Notes (optional)</label><input type="text" id="lessonNotes" placeholder="e.g. complete beginner, own instrument…"/></div>
+        </div>
+        <button class="btn-primary" onclick="bookLesson()">Confirm Booking</button>
+        <div class="form-msg" id="lessonMsg"></div>
+      </div>
+      <div class="form-box">
+        <h3>🔧 Instrument Repair Request</h3>
+        <div class="form-group"><label>Your Name</label><input type="text" id="repairName" placeholder="Full name"/></div>
+        <div class="form-group"><label>Instrument</label><input type="text" id="repairItem" placeholder="e.g. Yamaha keyboard, Fender guitar…"/></div>
+        <div class="form-group"><label>Describe the Issue</label><textarea id="repairIssue" placeholder="What's wrong with it?"></textarea></div>
+        <div class="form-group"><label>Your Phone</label><input type="tel" id="repairPhone" placeholder="+254 7XX XXX XXX"/></div>
+        <div class="form-group">
+          <label>Pickup Location</label>
+          <input type="text" id="repairAddress" placeholder="e.g. Westlands, Nairobi"/>
+          <div style="margin-top:.5rem;">
+            <button type="button" class="loc-btn" onclick="shareLocation('repair')">📍 Share My Location</button>
+            <div class="loc-status" id="repairLocStatus"></div>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="submitRepair()">Submit Repair Request</button>
+        <div class="form-msg" id="repairMsg"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD PAGE -->
+<div class="page" id="page-dashboard">
+  <div class="sec sec-dark">
+    <div class="sec-inner">
+      <div class="sec-label">My Account</div>
+      <h2 class="sec-title">Student Dashboard</h2>
+      <p class="sec-sub">Track your orders, lessons, and activity.</p>
+      <div class="stats-grid">
+        <div class="stat-card gold"><div class="stat-icon">🛒</div><div class="stat-val" id="dash-orders">0</div><div class="stat-label">Orders</div></div>
+        <div class="stat-card"><div class="stat-icon">🎓</div><div class="stat-val" id="dash-lessons">0</div><div class="stat-label">Lessons</div></div>
+        <div class="stat-card"><div class="stat-icon">🔧</div><div class="stat-val" id="dash-repairs">0</div><div class="stat-label">Repairs</div></div>
+        <div class="stat-card"><div class="stat-icon">❤️</div><div class="stat-val" id="dash-wishlist">0</div><div class="stat-label">Wishlist</div></div>
+      </div>
+
+      <h3 class="font-serif" style="color:#e0d8cc;font-weight:500;margin-bottom:1rem;font-size:1.2rem;">📦 My Orders &amp; Deliveries</h3>
+      <div id="myOrdersList" style="margin-bottom:2rem;"></div>
+
+      <h3 class="font-serif" style="color:#e0d8cc;font-weight:500;margin-bottom:1rem;font-size:1.2rem;">🎓 My Lessons</h3>
+      <div id="myLessonsList" style="margin-bottom:2rem;"></div>
+
+      <h3 class="font-serif" style="color:#e0d8cc;font-weight:500;margin-bottom:1rem;font-size:1.2rem;">🔧 My Repairs</h3>
+      <div id="myRepairsList" style="margin-bottom:2rem;"></div>
+
+      <h3 class="font-serif" style="color:#e0d8cc;font-weight:500;margin-bottom:1rem;font-size:1.2rem;">Recent Activity</h3>
+      <div class="activity-list" id="activityList">
+        <div class="activity-item"><div class="act-icon">👋</div><div class="act-info">Welcome to Harmony Music Store! Start shopping or book a lesson.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN PAGE -->
+<div class="page" id="page-admin">
+  <div class="sec sec-dark">
+    <div class="sec-inner">
+      <div class="sec-label">Admin Panel</div>
+      <h2 class="sec-title">Admin Dashboard</h2>
+      <p class="sec-sub">Live overview of your store's performance.</p>
+      <div class="stats-grid">
+        <div class="stat-card gold"><div class="stat-icon">💰</div><div class="stat-val" id="admin-sales" style="font-size:1.1rem;">KES 0</div><div class="stat-label">Total Sales</div></div>
+        <div class="stat-card"><div class="stat-icon">📦</div><div class="stat-val" id="admin-orders">0</div><div class="stat-label">Orders</div></div>
+        <div class="stat-card"><div class="stat-icon">🎓</div><div class="stat-val" id="admin-lessons">0</div><div class="stat-label">Lessons</div></div>
+        <div class="stat-card"><div class="stat-icon">🔧</div><div class="stat-val" id="admin-repairs">0</div><div class="stat-label">Repairs</div></div>
+        <div class="stat-card"><div class="stat-icon">❤️</div><div class="stat-val" id="admin-wishlists">0</div><div class="stat-label">Wishlists</div></div>
+        <div class="stat-card"><div class="stat-icon">✉️</div><div class="stat-val" id="admin-messages">0</div><div class="stat-label">Messages</div></div>
+      </div>
+      <h3 class="font-serif" style="color:#e0d8cc;font-weight:500;margin-bottom:1rem;font-size:1.2rem;">🚚 Orders &amp; Deliveries (this browser)</h3>
+      <div id="adminOrdersList" style="margin-bottom:2rem;"></div>
+
+      <h3 class="font-serif" style="color:#e0d8cc;font-weight:500;margin-bottom:1rem;font-size:1.2rem;">🎓 Lesson Bookings (this browser)</h3>
+      <div id="adminLessonsList" style="margin-bottom:2rem;"></div>
+
+      <h3 class="font-serif" style="color:#e0d8cc;font-weight:500;margin-bottom:1rem;font-size:1.2rem;">🔧 Repair Requests (this browser)</h3>
+      <div id="adminRepairsList" style="margin-bottom:2rem;"></div>
+
+      <h3 class="font-serif" style="color:#e0d8cc;font-weight:500;margin-bottom:1rem;font-size:1.2rem;">📦 Inventory Status</h3>
+      <div class="activity-list" id="inventoryList" style="margin-bottom:1.5rem;"></div>
+      <h3 class="font-serif" style="color:#e0d8cc;font-weight:500;margin-bottom:1rem;font-size:1.2rem;">Activity Log (store-wide, no personal data)</h3>
+      <div class="activity-list" id="adminLog">
+        <div class="activity-item"><div class="act-icon">🚀</div><div class="act-info">Store is live and ready!</div></div>
+      </div>
+      <div style="margin-top:2rem;">
+        <div class="form-box">
+          <h3>➕ Add New Product</h3>
+          <div class="form-row2">
+            <div class="form-group"><label>Product Name</label><input type="text" id="newProdName" placeholder="e.g. Yamaha PSR-E373"/></div>
+            <div class="form-group"><label>Brand</label><input type="text" id="newProdBrand" placeholder="e.g. Yamaha"/></div>
+          </div>
+          <div class="form-row2">
+            <div class="form-group"><label>Category</label><select id="newProdCat"><option value="keyboard">Keyboard</option><option value="piano">Piano</option><option value="guitar">Guitar</option></select></div>
+            <div class="form-group"><label>Price (KES)</label><input type="number" id="newProdPrice" placeholder="e.g. 45000"/></div>
+          </div>
+          <div class="form-group"><label>Quantity in Stock</label><input type="number" id="newProdStock" placeholder="e.g. 5" min="1"/></div>
+          <div class="form-group"><label>Description</label><textarea id="newProdDesc" placeholder="Short product description…"></textarea></div>
+          <div class="form-group"><label>Image URL (optional — leave blank to use an emoji placeholder)</label><input type="text" id="newProdImage" placeholder="e.g. https://yourcdn.com/yamaha-p45.jpg"/></div>
+          <button class="btn-primary" onclick="addProduct()">Add Product to Store</button>
+          <div class="form-msg" id="addProdMsg"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CART PANEL -->
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-panel" id="cartPanel">
+  <div class="cart-header"><h2>Your Bag</h2><button class="cart-close" onclick="closeCart()">✕</button></div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-footer" id="cartFooter" style="display:none;">
+    <div class="cart-total-row"><span>Subtotal</span><span id="cartSubtotal">KES 0</span></div>
+    <div class="cart-total-row"><span>Delivery / Pickup</span><span>Chosen at checkout</span></div>
+    <div class="cart-total-row grand"><span>Total</span><span id="cartTotal">KES 0</span></div>
+    <button class="checkout-btn" onclick="openPayment()">Secure Checkout →</button>
+  </div>
+</div>
+
+<!-- PAYMENT MODAL -->
+<div class="pay-overlay" id="payOverlay">
+  <div class="pay-box">
+    <div id="payStep1">
+      <h2>Delivery Details &amp; Payment</h2>
+      <p style="color:var(--text-muted);font-size:.83rem;margin-bottom:1rem;">Choose delivery or pickup, then choose how you'd like to pay.</p>
+
+      <div class="form-group"><label>Your Name</label><input type="text" id="checkoutName" placeholder="Full name"/></div>
+      <div class="form-group"><label>Phone Number</label><input type="tel" id="checkoutPhone" placeholder="+254 7XX XXX XXX"/></div>
+
+      <div class="form-group">
+        <label>Fulfillment Method</label>
+        <div class="fulfill-toggle">
+          <button type="button" class="fulfill-btn selected" id="fulfillDeliveryBtn" onclick="setFulfillMethod('delivery')">🚚 Deliver to me</button>
+          <button type="button" class="fulfill-btn" id="fulfillPickupBtn" onclick="setFulfillMethod('pickup')">🏬 Pickup at Store</button>
+        </div>
+      </div>
+
+      <div id="deliveryAddressBlock">
+        <div class="form-group">
+          <label>Delivery Address</label>
+          <input type="text" id="checkoutAddress" placeholder="e.g. Kilimani, Nairobi"/>
+          <div style="margin-top:.5rem;">
+            <button type="button" class="loc-btn" onclick="shareLocation('order')">📍 Share My Location</button>
+            <div class="loc-status" id="orderLocStatus"></div>
+          </div>
+        </div>
+      </div>
+      <div id="pickupInfoBlock" style="display:none;">
+        <div class="bank-detail-box" style="margin-bottom:1rem;">
+          <div class="bank-detail-row"><span>Pickup Location</span><strong>Harmony Music Store</strong></div>
+          <div class="bank-detail-row"><span>Address</span><strong>Nairobi CBD, Kenya</strong></div>
+          <div class="bank-detail-row"><span>Hours</span><strong>Mon–Sat, 9am–6pm</strong></div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="price-breakdown" id="priceBreakdown"></div>
+
+      <p style="color:var(--text-muted);font-size:.83rem;margin-bottom:.5rem;">Select how you'd like to pay</p>
+      <div class="pay-total">KES <span id="payAmount">0</span></div>
+      <div class="pay-methods">
+        <div class="pay-method selected" onclick="selectPayMethod('mpesa',this)"><span class="pm-icon">📱</span><div class="pm-name">M-Pesa</div><div class="pm-sub">Safaricom STK</div></div>
+        <div class="pay-method" onclick="selectPayMethod('airtel',this)"><span class="pm-icon">📱</span><div class="pm-name">Airtel Money</div><div class="pm-sub">Airtel prompt</div></div>
+        <div class="pay-method" onclick="selectPayMethod('card',this)"><span class="pm-icon">💳</span><div class="pm-name">Card</div><div class="pm-sub">Visa / Mastercard</div></div>
+        <div class="pay-method" onclick="selectPayMethod('paypal',this)"><span class="pm-icon">🅿️</span><div class="pm-name">PayPal</div><div class="pm-sub">International</div></div>
+        <div class="pay-method" onclick="selectPayMethod('bank',this)"><span class="pm-icon">🏦</span><div class="pm-name">Bank Transfer</div><div class="pm-sub">Equity, KCB…</div></div>
+      </div>
+      <div class="pay-panel active" id="panel-mpesa">
+        <div class="form-group"><label style="font-size:.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;">M-Pesa Phone Number</label><input type="tel" id="mpesaPhone" placeholder="+254 7XX XXX XXX"/></div>
+        <p style="font-size:.8rem;color:var(--text-muted);margin-bottom:1rem;">📲 You will receive an STK push. Enter your M-Pesa PIN to confirm.</p>
+        <button class="pay-proceed-btn mpesa-btn" onclick="processPayment('mpesa')">Send M-Pesa Request 📲</button>
+      </div>
+      <div class="pay-panel" id="panel-airtel">
+        <div class="form-group"><label style="font-size:.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;">Airtel Money Number</label><input type="tel" id="airtelPhone" placeholder="+254 7XX XXX XXX"/></div>
+        <p style="font-size:.8rem;color:var(--text-muted);margin-bottom:1rem;">📲 You will receive an Airtel Money prompt.</p>
+        <button class="pay-proceed-btn airtel-btn" onclick="processPayment('airtel')">Send Airtel Money Request 📲</button>
+      </div>
+      <div class="pay-panel" id="panel-card">
+        <div class="form-group"><label style="font-size:.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;">Card Number</label><input type="text" id="cardNum" placeholder="1234 5678 9012 3456" maxlength="19"/></div>
+        <div class="form-row2">
+          <div class="form-group"><label style="font-size:.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;">Expiry</label><input type="text" id="cardExp" placeholder="MM/YY" maxlength="5"/></div>
+          <div class="form-group"><label style="font-size:.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;">CVV</label><input type="text" id="cardCvv" placeholder="123" maxlength="4"/></div>
+        </div>
+        <div class="form-group"><label style="font-size:.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;">Name on Card</label><input type="text" id="cardName" placeholder="John Doe"/></div>
+        <button class="pay-proceed-btn card-btn" onclick="processPayment('card')">Pay with Card 💳</button>
+      </div>
+      <div class="pay-panel" id="panel-paypal">
+        <div style="text-align:center;padding:1.5rem 0;">
+          <div style="font-size:3rem;margin-bottom:.5rem;">🅿️</div>
+          <p style="font-size:.88rem;color:var(--text-muted);margin-bottom:1.5rem;">You will be securely redirected to PayPal.</p>
+        </div>
+        <button class="pay-proceed-btn paypal-btn" onclick="processPayment('paypal')">Continue to PayPal 🅿️</button>
+      </div>
+      <div class="pay-panel" id="panel-bank">
+        <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:1rem;">Transfer to any account below, then click confirm. We verify within 1–2 business days.</p>
+        <div class="bank-detail-box">
+          <div class="bank-detail-row"><span>Bank</span><strong>Equity Bank Kenya</strong></div>
+          <div class="bank-detail-row"><span>Account Name</span><strong>Harmony Music Store</strong></div>
+          <div class="bank-detail-row"><span>Account No.</span><strong>0123456789</strong></div>
+          <div class="bank-detail-row"><span>Branch</span><strong>Nairobi CBD (068)</strong></div>
+        </div>
+        <div class="bank-detail-box">
+          <div class="bank-detail-row"><span>Bank</span><strong>KCB Bank Kenya</strong></div>
+          <div class="bank-detail-row"><span>Account Name</span><strong>Harmony Music Store</strong></div>
+          <div class="bank-detail-row"><span>Account No.</span><strong>9876543210</strong></div>
+          <div class="bank-detail-row"><span>Branch</span><strong>Westlands (019)</strong></div>
+        </div>
+        <button class="pay-proceed-btn bank-btn" onclick="processPayment('bank')">I Have Transferred — Confirm Order 🏦</button>
+      </div>
+      <div class="divider"></div>
+      <button class="pay-cancel-btn" onclick="closePayment()">Cancel</button>
+    </div>
+    <div class="pay-processing" id="payProcessing">
+      <div class="spinner">⏳</div>
+      <h3 style="color:#e0d8cc;margin-top:1rem;font-family:'EB Garamond',serif;" id="processingMsg">Processing…</h3>
+      <p style="color:var(--text-muted);margin-top:.5rem;" id="processingSubMsg">Please wait…</p>
+    </div>
+    <div class="pay-success" id="paySuccess">
+      <div class="big-check">✅</div>
+      <h3 id="successTitle">Payment Confirmed!</h3>
+      <p id="successMsg"></p>
+      <div class="order-ref">Order Reference: <strong id="orderRef">–</strong></div>
+      <button class="btn-primary" style="width:100%;margin-top:1rem;" onclick="openTrackOrder(lastOrderRef);closePayment();">Track My Delivery 🚚</button>
+      <button class="btn-primary" style="width:100%;margin-top:.6rem;background:var(--bg-raised);box-shadow:none;" onclick="closePayment()">Continue Shopping 🎵</button>
+    </div>
+  </div>
+</div>
+
+<!-- ORDER TRACKING MODAL -->
+<div class="track-overlay" id="trackOverlay">
+  <div class="track-box">
+    <h2 id="trackRefTitle">Order Tracking</h2>
+    <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:.6rem;" id="trackSubtitle">Live status of your delivery</p>
+
+    <div class="track-timeline" id="trackTimeline"></div>
+
+    <div class="eta-line" id="trackEtaLine"></div>
+
+    <div class="map-box" id="trackMap"></div>
+
+    <button class="track-close-btn" onclick="closeTrackOrder()">Close</button>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div><span style="font-size:1.6rem;">🎵</span> <span class="footer-brand-name">Harmony <em>Music Store</em></span></div>
+      <p>Your trusted partner for musical instruments across Kenya. We deliver the joy of music to every doorstep.</p>
+      <div class="footer-social"><a class="social-btn" href="#">f</a><a class="social-btn" href="#">in</a><a class="social-btn" href="#">yt</a><a class="social-btn" href="#">ig</a></div>
+    </div>
+    <div class="footer-col"><h4>Shop</h4><ul><li><a href="#">Keyboards</a></li><li><a href="#">Pianos</a></li><li><a href="#">Guitars</a></li><li><a href="#">Accessories</a></li></ul></div>
+    <div class="footer-col"><h4>Support</h4><ul><li><a href="#">Shipping Info</a></li><li><a href="#">Returns</a></li><li><a href="#">FAQ</a></li><li><a href="#">Track Order</a></li></ul></div>
+    <div class="footer-col"><h4>Company</h4><ul><li><a href="#">About Us</a></li><li><a href="#">Music Lessons</a></li><li><a href="#">Blog</a></li><li><a href="#">Privacy Policy</a></li></ul></div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2024 Harmony Music Store. All rights reserved.</span>
+    <span>🇰🇪 Nairobi, Kenya · 🔒 Secure payments · 🎵 Music for all</span>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<!-- ADMIN LOGIN GATE -->
+<div class="admin-login-overlay" id="adminLoginOverlay">
+  <div class="admin-login-box">
+    <div class="icon">🔒</div>
+    <h2>Admin Access</h2>
+    <p>This area is restricted to store staff. Enter the admin password to continue.</p>
+    <input type="password" id="adminPasswordInput" placeholder="Admin password" onkeydown="if(event.key==='Enter')submitAdminLogin()"/>
+    <div class="admin-login-err" id="adminLoginErr">❌ Incorrect password. Try again.</div>
+    <div class="admin-login-actions">
+      <button class="admin-login-cancel" onclick="cancelAdminLogin()">Cancel</button>
+      <button class="admin-login-submit" onclick="submitAdminLogin()">Unlock</button>
+    </div>
+  </div>
+</div>
+
+<!-- AI ASSISTANT CHATBOT -->
+<button class="ai-chat-launcher" id="aiChatLauncher" onclick="toggleAiChat()">
+  💬<span class="ping"></span>
+</button>
+<div class="ai-chat-panel" id="aiChatPanel">
+  <div class="ai-chat-header">
+    <div class="ai-chat-header-title">
+      <span class="dot"></span>
+      <div>
+        <h4>Ask Harmony</h4>
+        <span>Instruments · Lessons · Repairs · Orders</span>
+      </div>
+    </div>
+    <button class="ai-chat-close" onclick="toggleAiChat()">✕</button>
+  </div>
+  <div class="ai-chat-log" id="aiChatLog"></div>
+  <div class="ai-chat-suggestions" id="aiChatSuggestions">
+    <button class="ai-chip" onclick="aiHandleQuestion('Do you have any guitars in stock?')">Guitars in stock?</button>
+    <button class="ai-chip" onclick="aiHandleQuestion('How much are piano lessons?')">Piano lessons?</button>
+    <button class="ai-chip" onclick="aiHandleQuestion('Do you deliver, and how much does it cost?')">Delivery cost?</button>
+  </div>
+  <div class="ai-chat-input">
+    <input type="text" id="aiChatInput" placeholder="Ask about instruments, lessons, repairs…" onkeydown="if(event.key==='Enter')aiSendFromInput()"/>
+    <button onclick="aiSendFromInput()">Send</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+// WebGL animated hero background (from design 2)
+(function(){
+  const canvas=document.getElementById('hero-canvas');
+  function sync(){const w=canvas.clientWidth||1280,h=canvas.clientHeight||720;if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}}
+  if(typeof ResizeObserver!=='undefined') new ResizeObserver(sync).observe(canvas);
+  sync();
+  const gl=canvas.getContext('webgl')||canvas.getContext('experimental-webgl');
+  if(!gl)return;
+  const vs=`attribute vec2 a_position;varying vec2 v_uv;void main(){v_uv=a_position*.5+.5;gl_Position=vec4(a_position,0.,1.);}`;
+  const fs=`precision highp float;uniform float u_time;uniform vec2 u_res;uniform vec2 u_mouse;varying vec2 v_uv;
+vec3 permute(vec3 x){return mod(((x*34.)+1.)*x,289.);}
+float snoise(vec2 v){const vec4 C=vec4(.211,.366,-.577,.024);vec2 i=floor(v+dot(v,C.yy));vec2 x0=v-i+dot(i,C.xx);vec2 i1=(x0.x>x0.y)?vec2(1.,0.):vec2(0.,1.);vec4 x12=x0.xyxy+C.xxzz;x12.xy-=i1;i=mod(i,289.);vec3 p=permute(permute(i.y+vec3(0.,i1.y,1.))+i.x+vec3(0.,i1.x,1.));vec3 m=max(.5-vec3(dot(x0,x0),dot(x12.xy,x12.xy),dot(x12.zw,x12.zw)),0.);m=m*m;m=m*m;vec3 x=2.*fract(p*C.www)-1.;vec3 h=abs(x)-.5;vec3 ox=floor(x+.5);vec3 a0=x-ox;m*=1.793-.854*(a0*a0+h*h);vec3 g;g.x=a0.x*x0.x+h.x*x0.y;g.yz=a0.yz*x12.xz+h.yz*x12.yw;return 130.*dot(m,g);}
+void main(){vec2 uv=v_uv;vec2 mouse=u_mouse/u_res;float n1=snoise(uv*2.+u_time*.15);float n2=snoise(uv*4.-u_time*.22+mouse*.4);float c=n1*.6+n2*.4;vec3 cA=vec3(.031,.133,.263);vec3 cB=vec3(.086,.086,.086);vec3 cC=vec3(.483,.380,.212);vec3 col=mix(cB,cA,c*.5+.5);col+=cC*pow(max(0.,c),5.)*.18;gl_FragColor=vec4(col,1.);}`;
+  function cs(t,s){const sh=gl.createShader(t);gl.shaderSource(sh,s);gl.compileShader(sh);return sh;}
+  const prog=gl.createProgram();gl.attachShader(prog,cs(gl.VERTEX_SHADER,vs));gl.attachShader(prog,cs(gl.FRAGMENT_SHADER,fs));gl.linkProgram(prog);gl.useProgram(prog);
+  const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+  const pos=gl.getAttribLocation(prog,'a_position');gl.enableVertexAttribArray(pos);gl.vertexAttribPointer(pos,2,gl.FLOAT,false,0,0);
+  const uT=gl.getUniformLocation(prog,'u_time'),uR=gl.getUniformLocation(prog,'u_res'),uM=gl.getUniformLocation(prog,'u_mouse');
+  let mouse={x:canvas.width/2,y:canvas.height/2};
+  window.addEventListener('mousemove',e=>{const r=canvas.getBoundingClientRect();if(r.width&&r.height){mouse.x=(e.clientX-r.left)/r.width*canvas.width;mouse.y=(1-(e.clientY-r.top)/r.height)*canvas.height;}});
+  function render(t){sync();gl.viewport(0,0,canvas.width,canvas.height);if(uT)gl.uniform1f(uT,t*.001);if(uR)gl.uniform2f(uR,canvas.width,canvas.height);if(uM)gl.uniform2f(uM,mouse.x,mouse.y);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);requestAnimationFrame(render);}
+  render(0);
+})();
+
+/* =========================================================
+   BACKEND CONNECTION
+   Point this at your deployed backend's public URL once you
+   have one (localhost will NOT work — this page runs in the
+   browser, on a different machine from your local backend).
+   Example once deployed: 'https://your-app.onrender.com/api'
+   ========================================================= */
+const API=''; // e.g. 'https://harmony-api.onrender.com/api' — leave '' until deployed
+const API_KEY=''; // simple shared key sent as 'x-api-key' header once your backend checks for one
+
+async function apiCall(path,options={}){
+  if(!API) return null; // no backend configured yet — caller should fall back to local storage
+  try{
+    const res=await fetch(API+path,{
+      ...options,
+      headers:{'Content-Type':'application/json',...(API_KEY?{'x-api-key':API_KEY}:{}),...(options.headers||{})}
+    });
+    if(!res.ok) throw new Error('Backend responded with '+res.status);
+    return await res.json();
+  }catch(e){
+    console.error('Backend call failed ('+path+'):',e);
+    return null; // caller falls back to local/private storage
+  }
+}
+
+/* =========================================================
+   PRODUCTS (default catalog — merged with stored DB on load)
+   ========================================================= */
+let products=[
+  {id:'p1',name:'Yamaha P-45',brand:'Yamaha',category:'keyboard',price:75000,stock:10,icon:'🎹',badge:'Best Seller',badgeType:'',desc:'88 weighted keys, 10 voices. Ideal for beginners and intermediates.'},
+  {id:'p2',name:'Roland FP-30X',brand:'Roland',category:'keyboard',price:115000,stock:12,icon:'🎹',badge:'Popular',badgeType:'',desc:'SuperNATURAL sound engine, Bluetooth, 88 keys.'},
+  {id:'p3',name:'Korg B2',brand:'Korg',category:'keyboard',price:62000,stock:19,icon:'🎹',badge:'New',badgeType:'new',desc:'Natural weighted hammer action, 88 keys, 12 sounds.'},
+  {id:'p4',name:'Casio CT-S300',brand:'Casio',category:'keyboard',price:18000,stock:9,icon:'🎹',badge:null,badgeType:'',desc:'61 keys, 400 tones. Perfect starter for young learners.'},
+  {id:'p5',name:'Yamaha U1 Upright Piano',brand:'Yamaha',category:'piano',price:650000,stock:13,icon:'🎼',badge:'Premium',badgeType:'',desc:'Iconic acoustic upright piano trusted by music schools worldwide.'},
+  {id:'p6',name:'Pearl River GP-148',brand:'Pearl River',category:'piano',price:1200000,stock:2,icon:'🎼',badge:'Grand',badgeType:'',desc:'5ft baby grand piano. Excellent tone for home and studio.'},
+  {id:'p7',name:'Fender CD-60S Acoustic',brand:'Fender',category:'guitar',price:35000,stock:10,icon:'🎸',badge:'Best Value',badgeType:'',desc:'Solid spruce top acoustic, great for beginners.'},
+  {id:'p8',name:'Gibson Les Paul Standard',brand:'Gibson',category:'guitar',price:320000,stock:5,icon:'🎸',badge:'Iconic',badgeType:'',desc:'Legendary mahogany body, Burstbucker pickups, unmatched sustain.'},
+  {id:'p9',name:'Fender Stratocaster Player',brand:'Fender',category:'guitar',price:95000,stock:12,icon:'🎸',badge:null,badgeType:'',desc:'Classic single-coil tones, alder body, smooth tremolo.'},
+  {id:'p10',name:'Yamaha FG800 Acoustic',brand:'Yamaha',category:'guitar',price:25000,stock:16,icon:'🎸',badge:'New',badgeType:'new',desc:'Solid spruce top, warm balanced tone for folk and pop.'},
+  {id:'p11',name:'Roland Juno-DS61',brand:'Roland',category:'keyboard',price:125000,stock:3,icon:'🎹',badge:null,badgeType:'',desc:'61-key synthesizer, 128-voice polyphony, built-in sequencer.'},
+  {id:'p12',name:'Casio Grand Hybrid GP-510',brand:'Casio',category:'piano',price:700000,stock:2,icon:'🎼',badge:'Sale',badgeType:'',desc:'Acoustic/digital hybrid. Grand feel with digital convenience.'},
+];
+
+/* =========================================================
+   DATABASE (persistent storage)
+
+   Split into two stores:
+
+   • DB_PRIVATE_KEY (shared:false) — orders, repairs, lessons,
+     messages, and this visitor's own activity log. This is
+     only ever readable by the person who created it — nobody
+     else who opens this page can see your name, phone, or
+     address. This is per-visitor, not global.
+
+   • DB_SHARED_KEY (shared:true) — store-wide totals (sales,
+     order/lesson/repair/message counts), the live product
+     catalog/stock, and a sanitized activity feed with NO
+     personal details. Safe for everyone to read, including
+     the Admin dashboard.
+
+   IMPORTANT LIMITATION: because personal order/repair data is
+   private-per-visitor, the Admin panel can only list orders and
+   repairs placed *in the browser currently viewing it* — it
+   cannot show every customer's individual order across the
+   whole store. That requires a real backend database (see the
+   apiCall()/API config above) which every visitor's browser and
+   the admin both talk to. Once your backend is deployed, swap
+   the calls in processPayment(), submitRepair(), bookLesson()
+   and sendMessage() to also POST to apiCall(), and have
+   renderOrdersLists()/renderRepairsLists() pull the admin view
+   from apiCall('/orders') / apiCall('/repairs') instead of the
+   private local arrays when API is configured.
+   ========================================================= */
+const DB_PRIVATE_KEY='harmony-private-data';
+const DB_SHARED_KEY='harmony-shared-data';
+const SHOP_LOC={lat:-1.2833,lng:36.8167,name:"Harmony Music Store, Nairobi CBD"};
+const DELIVERY_DEMO_MS=75000; // simulated delivery duration for demo purposes
+
+let cart=[],wishlist=[];
+let orders=[],repairs=[],lessons=[],messages=[];
+let totalOrders=0,totalSales=0,totalLessons=0,totalRepairs=0,totalMessages=0,currentCategory='all',currentSort='default',currentPayMethod='mpesa';
+let activityLog=[];       // private, detailed, may include names — shown in "My Account"
+let sharedActivityLog=[]; // shared, sanitized, no personal data — shown in Admin
+let lastOrderRef=null;
+let geoLoc={order:null,repair:null}; // {lat,lng} captured per-flow
+let trackMapObj=null,trackMarkers={},trackPollTimer=null,currentTrackRef=null;
+let dbReady=false;
+
+async function loadDB(){
+  try{
+    const priv = localStorage.getItem(DB_PRIVATE_KEY);
+    if(priv){
+      const data=JSON.parse(priv);
+      orders=data.orders||[];
+      repairs=data.repairs||[];
+      lessons=data.lessons||[];
+      messages=data.messages||[];
+      activityLog=data.activityLog||[];
+    }
+  }catch(e){
+    console.log('No existing private data yet for this visitor — starting fresh.');
+  }
+  try{
+    const shared = localStorage.getItem(DB_SHARED_KEY);
+    if(shared){
+      const data=JSON.parse(shared);
+      totalOrders=data.totalOrders||0;
+      totalSales=data.totalSales||0;
+      totalLessons=data.totalLessons||0;
+      totalRepairs=data.totalRepairs||0;
+      totalMessages=data.totalMessages||0;
+      sharedActivityLog=data.sharedActivityLog||[];
+      if(Array.isArray(data.products)&&data.products.length) products=data.products;
+    }
+  }catch(e){
+    console.log('No existing shared store data yet — starting fresh.');
+  }
+  dbReady=true;
+  renderFeatured();updateCartUI();updateDashboard();updateAdmin();
+}
+async function savePrivateDB(){
+  try{
+    localStorage.setItem(
+      DB_PRIVATE_KEY,
+      JSON.stringify({orders,repairs,lessons,messages,activityLog})
+    );
+  }catch(e){
+    console.error('Could not save your private data:',e);
+    showToast('⚠️ Could not save — changes may not persist');
+  }
+}
+
+async function saveSharedDB(){
+  try{
+    localStorage.setItem(
+  DB_SHARED_KEY,
+  JSON.stringify({totalOrders,totalSales,totalLessons,totalRepairs,totalMessages,sharedActivityLog,products})
+);
+  }catch(e){
+    console.error('Could not save shared store data:',e);
+    showToast('⚠️ Could not save store totals — changes may not persist');
+  }
+}
+async function saveDB(){ await Promise.all([savePrivateDB(),saveSharedDB()]); }
+
+let adminAuthenticated=false;
+const ADMIN_PASSWORD='harmony2026'; // demo-only client-side gate — see note below
+/* NOTE: this password lives in the page's source, so anyone who views-source
+   can read it. It's fine for a quick demo but is NOT real access control.
+   Once your backend is deployed, replace submitAdminLogin() with a call to
+   apiCall('/admin/login',{method:'POST',body:JSON.stringify({password:val})})
+   and have the backend verify against a securely-stored password/hash and
+   return a session token — never ship the real password in this file. */
+let pendingAdminBtn=null;
+
+function showPage(name,btn){
+  if(name==='admin'&&!adminAuthenticated){
+    pendingAdminBtn=btn;
+    document.getElementById('adminPasswordInput').value='';
+    document.getElementById('adminLoginErr').classList.remove('show');
+    document.getElementById('adminLoginOverlay').classList.add('open');
+    setTimeout(()=>document.getElementById('adminPasswordInput').focus(),100);
+    return;
+  }
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(name==='shop') renderShop();
+  if(name==='dashboard') updateDashboard();
+  if(name==='admin') updateAdmin();
+  window.scrollTo(0,0);
+}
+
+function submitAdminLogin(){
+  const val=document.getElementById('adminPasswordInput').value;
+  if(val===ADMIN_PASSWORD){
+    adminAuthenticated=true;
+    document.getElementById('adminLoginOverlay').classList.remove('open');
+    showPage('admin',pendingAdminBtn||document.querySelectorAll('.nav-link')[4]);
+    showToast('🔓 Admin access granted');
+  }else{
+    document.getElementById('adminLoginErr').classList.add('show');
+    document.getElementById('adminPasswordInput').value='';
+    document.getElementById('adminPasswordInput').focus();
+  }
+}
+function cancelAdminLogin(){
+  document.getElementById('adminLoginOverlay').classList.remove('open');
+  pendingAdminBtn=null;
+}
+
+function getFiltered(){
+  const q=(document.getElementById('shopSearch')||{value:''}).value.toLowerCase();
+  let p=products.filter(x=>(currentCategory==='all'||x.category===currentCategory)&&(x.name.toLowerCase().includes(q)||x.brand.toLowerCase().includes(q)));
+  if(currentSort==='price-asc') p.sort((a,b)=>a.price-b.price);
+  else if(currentSort==='price-desc') p.sort((a,b)=>b.price-a.price);
+  else if(currentSort==='name') p.sort((a,b)=>a.name.localeCompare(b.name));
+  return p;
+}
+
+function productHTML(p){
+  const inW=wishlist.find(x=>x.id===p.id);
+  const stockHtml=p.stock<=3
+    ?`<div class="stock-low">⚠ Only ${p.stock} left</div>`
+    :`<div class="stock-ok">In stock: ${p.stock}</div>`;
+  const imageHtml=p.image
+    ?`<img src="${p.image}" alt="${p.name}">`
+    :`<div class="product-image-placeholder">${p.icon}</div>`;
+  return `<div class="product-card">
+<div class="product-image">
+    ${imageHtml}
+</div>
+    <div class="product-body">
+      <div class="product-brand">${p.brand}</div>
+      <div class="product-name">${p.name}</div>
+      <div class="product-desc">${p.desc}</div>
+      ${stockHtml}
+      <div class="product-footer">
+        <span class="product-price">KES ${p.price.toLocaleString()}</span>
+        <div class="product-actions">
+          <button class="wish-btn${inW?' wished':''}" onclick="toggleWish('${p.id}')">${inW?'❤️':'🤍'}</button>
+          <button class="add-to-cart" onclick="addToCart('${p.id}')" ${p.stock<=0?'disabled style="opacity:.5;cursor:not-allowed"':''}>Add to Cart</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderShop(){
+  const prods=getFiltered();
+  document.getElementById('shopGrid').innerHTML=prods.length?prods.map(productHTML).join(''):'<p style="color:var(--text-muted);">No products found.</p>';
+  renderWishlist();
+}
+
+function renderFeatured(){
+  const f=products.filter(p=>p.badge&&['Best Seller','Popular','Iconic','Best Value'].includes(p.badge)).slice(0,4);
+  const g=document.getElementById('featuredGrid');
+  if(g) g.innerHTML=f.map(productHTML).join('');
+}
+
+function setCategory(cat,card,btn){
+  currentCategory=cat;
+  document.querySelectorAll('.cat-card').forEach(c=>c.classList.remove('active'));
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  if(card) card.classList.add('active');
+  if(btn) btn.classList.add('active');
+  renderShop();
+}
+
+function addToCart(id){
+  const p=products.find(x=>x.id===id);
+  if(p.stock<=0){showToast('❌ Out of stock');return;}
+  const ex=cart.find(x=>x.id===id);
+  const qtyInCart=ex?ex.qty:0;
+  if(qtyInCart+1>p.stock){showToast('⚠️ Only '+p.stock+' in stock');return;}
+  if(ex) ex.qty++; else cart.push({...p,qty:1});
+  updateCartUI();showToast('🎵 '+p.name+' added to cart!');
+}
+function changeQty(id,d){
+  const item=cart.find(x=>x.id===id);
+  if(!item) return;
+  const p=products.find(x=>x.id===id);
+  if(d>0&&p&&item.qty+d>p.stock){showToast('⚠️ Only '+p.stock+' in stock');return;}
+  item.qty+=d;
+  if(item.qty<=0) cart=cart.filter(x=>x.id!==id);
+  updateCartUI();
+}
+function removeFromCart(id){cart=cart.filter(x=>x.id!==id);updateCartUI();}
+function cartTotal(){return cart.reduce((s,i)=>s+i.price*i.qty,0);}
+function openCart(){document.getElementById('cartOverlay').classList.add('open');document.getElementById('cartPanel').classList.add('open');}
+function closeCart(){document.getElementById('cartOverlay').classList.remove('open');document.getElementById('cartPanel').classList.remove('open');}
+
+function updateCartUI(){
+  const count=cart.reduce((s,i)=>s+i.qty,0);
+  document.getElementById('cartCount').textContent=count;
+  const total=cartTotal();
+  document.getElementById('cartSubtotal').textContent='KES '+total.toLocaleString();
+  document.getElementById('cartTotal').textContent='KES '+total.toLocaleString();
+  document.getElementById('cartFooter').style.display=cart.length?'block':'none';
+  const el=document.getElementById('cartItems');
+  if(!cart.length){el.innerHTML='<div class="cart-empty"><div style="font-size:2.5rem;margin-bottom:.8rem;">🎵</div><p>Your cart is empty.<br>Add some instruments!</p></div>';return;}
+  el.innerHTML=cart.map(item=>`<div class="cart-item">
+    <div class="cart-item-icon">${item.icon}</div>
+    <div class="cart-item-info">
+      <div class="cart-item-name">${item.name}</div>
+      <div class="cart-item-price">KES ${item.price.toLocaleString()}</div>
+      <div class="cart-item-qty">
+        <button class="qty-btn" onclick="changeQty('${item.id}',-1)">−</button>
+        <span class="qty-num">${item.qty}</span>
+        <button class="qty-btn" onclick="changeQty('${item.id}',1)">+</button>
+      </div>
+    </div>
+    <button class="cart-remove" onclick="removeFromCart('${item.id}')">🗑</button>
+  </div>`).join('');
+}
+
+function toggleWish(id){
+  const p=products.find(x=>x.id===id);
+  if(wishlist.find(x=>x.id===id)){wishlist=wishlist.filter(x=>x.id!==id);showToast('💔 '+p.name+' removed from wishlist');}
+  else{wishlist.push(p);showToast('❤️ '+p.name+' added to wishlist!');logAct('❤️','Added '+p.name+' to wishlist','wishlist');}
+  renderShop();renderFeatured();updateDashboard();
+}
+function renderWishlist(){
+  const el=document.getElementById('wishlistGrid');
+  if(!el) return;
+  if(!wishlist.length){el.innerHTML='<p style="color:var(--text-muted);font-size:.9rem;">No items in wishlist yet.</p>';return;}
+  el.innerHTML=wishlist.map(w=>`<div class="wish-card"><div class="wicon">${w.icon}</div><div><h4>${w.name}</h4><p>KES ${w.price.toLocaleString()}</p></div><button class="remove-wish" onclick="toggleWish('${w.id}')">✕</button></div>`).join('');
+}
+
+/* =========================================================
+   GEOLOCATION
+   ========================================================= */
+function shareLocation(flow){
+  // flow is 'order' or 'repair'
+  const statusEl=document.getElementById(flow+'LocStatus');
+  const addrInput=document.getElementById(flow==='order'?'checkoutAddress':'repairAddress');
+  if(!navigator.geolocation){
+    statusEl.className='loc-status err';statusEl.textContent='⚠️ Location not supported on this device/browser.';
+    return;
+  }
+  statusEl.className='loc-status';statusEl.textContent='📡 Getting your location…';
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      const lat=pos.coords.latitude,lng=pos.coords.longitude;
+      geoLoc[flow]={lat,lng};
+      statusEl.className='loc-status ok';
+      statusEl.textContent='✅ Location captured ('+lat.toFixed(4)+', '+lng.toFixed(4)+')';
+      if(addrInput&&!addrInput.value.trim()) addrInput.value='Pinned location ('+lat.toFixed(4)+', '+lng.toFixed(4)+')';
+    },
+    err=>{
+      let msg='⚠️ Could not get your location.';
+      if(err.code===1) msg='⚠️ Location permission denied. You can still type your address.';
+      else if(err.code===2) msg='⚠️ Location unavailable right now. Try again or type your address.';
+      else if(err.code===3) msg='⚠️ Location request timed out. Try again.';
+      statusEl.className='loc-status err';statusEl.textContent=msg;
+    },
+    {enableHighAccuracy:true,timeout:10000}
+  );
+}
+
+/* =========================================================
+   CHECKOUT / PAYMENT
+   ========================================================= */
+let fulfillMethod='delivery';
+const DELIVERY_FEE=300; // flat fee for Nairobi delivery
+const FREE_DELIVERY_THRESHOLD=20000;
+
+function calcDeliveryFee(method,subtotal){
+  if(method==='pickup') return 0;
+  if(subtotal>=FREE_DELIVERY_THRESHOLD) return 0;
+  return DELIVERY_FEE;
+}
+function orderTotal(){
+  const subtotal=cartTotal();
+  return subtotal+calcDeliveryFee(fulfillMethod,subtotal);
+}
+function setFulfillMethod(method){
+  fulfillMethod=method;
+  document.getElementById('fulfillDeliveryBtn').classList.toggle('selected',method==='delivery');
+  document.getElementById('fulfillPickupBtn').classList.toggle('selected',method==='pickup');
+  document.getElementById('deliveryAddressBlock').style.display=method==='delivery'?'block':'none';
+  document.getElementById('pickupInfoBlock').style.display=method==='pickup'?'block':'none';
+  renderPriceBreakdown();
+}
+function renderPriceBreakdown(){
+  const subtotal=cartTotal();
+  const fee=calcDeliveryFee(fulfillMethod,subtotal);
+  const total=subtotal+fee;
+  let feeRow;
+  if(fulfillMethod==='pickup') feeRow=`<div class="pb-row free"><span>Pickup at store</span><span>FREE</span></div>`;
+  else if(fee===0) feeRow=`<div class="pb-row free"><span>Delivery (Nairobi, over KES ${FREE_DELIVERY_THRESHOLD.toLocaleString()})</span><span>FREE</span></div>`;
+  else feeRow=`<div class="pb-row"><span>Delivery fee</span><span>KES ${fee.toLocaleString()}</span></div>`;
+  document.getElementById('priceBreakdown').innerHTML=
+    `<div class="pb-row"><span>Subtotal</span><span>KES ${subtotal.toLocaleString()}</span></div>`+
+    feeRow+
+    `<div class="pb-row grand"><span>Total to Pay</span><span>KES ${total.toLocaleString()}</span></div>`;
+  document.getElementById('payAmount').textContent=total.toLocaleString();
+}
+
+function openPayment(){
+  fulfillMethod='delivery';
+  document.getElementById('fulfillDeliveryBtn').classList.add('selected');
+  document.getElementById('fulfillPickupBtn').classList.remove('selected');
+  document.getElementById('deliveryAddressBlock').style.display='block';
+  document.getElementById('pickupInfoBlock').style.display='none';
+  renderPriceBreakdown();
+  document.getElementById('payStep1').style.display='block';
+  document.getElementById('payProcessing').style.display='none';
+  document.getElementById('paySuccess').style.display='none';
+  document.getElementById('payOverlay').classList.add('open');
+  closeCart();
+}
+function closePayment(){document.getElementById('payOverlay').classList.remove('open');}
+
+function selectPayMethod(method,el){
+  currentPayMethod=method;
+  document.querySelectorAll('.pay-method').forEach(e=>e.classList.remove('selected'));
+  el.classList.add('selected');
+  document.querySelectorAll('.pay-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+method).classList.add('active');
+}
+
+// Base URL of the real M-Pesa backend (server.js). Change this if that
+// backend ends up hosted somewhere other than your own machine on :4000.
+const MPESA_API_BASE='http://localhost:4000';
+let mpesaPollToken=0; // guards against overlapping polls if a new payment starts mid-poll
+
+async function finalizeOrder(method,total,fee,subtotal,name,phone,address,extra){
+  const ref='ORD-'+Math.random().toString(36).slice(2,10).toUpperCase();
+  totalOrders++;totalSales+=total;
+  const loc=geoLoc.order;
+  const order={
+    ref,
+    items:cart.map(i=>({id:i.id,name:i.name,price:i.price,qty:i.qty})),
+    subtotal,deliveryFee:fee,total,paymentMethod:method,
+    fulfillMethod,
+    customerName:name,customerPhone:phone,
+    deliveryAddress:fulfillMethod==='delivery'?address:'Pickup at store',
+    deliveryLat:fulfillMethod==='delivery'&&loc?loc.lat:null,
+    deliveryLng:fulfillMethod==='delivery'&&loc?loc.lng:null,
+    status:'placed',
+    createdAt:Date.now(),dispatchedAt:null,deliveredAt:null,
+    ...(extra||{})
+  };
+  orders.unshift(order); // private — only this visitor can see it
+
+  // Reduce stock for each purchased item (shared/global — no personal data)
+  order.items.forEach(item=>{
+    const prod=products.find(x=>x.id===item.id);
+    if(prod) prod.stock=Math.max(0,prod.stock-item.qty);
+  });
+
+  logAct('💰','Order '+ref+' — KES '+total.toLocaleString()+' via '+method.toUpperCase(),'order'); // private log (kept off shared log, includes context)
+  logSharedAct('💰','New order placed — KES '+total.toLocaleString()+' via '+method.toUpperCase(),'order'); // sanitized, no name/phone/address
+
+  // If a real backend is configured, also push the full order there so
+  // Admin (and the customer, from any device) can see it centrally.
+  await apiCall('/orders',{method:'POST',body:JSON.stringify(order)});
+
+  return ref;
+}
+
+function showPaySuccess(method,ref,customMsg){
+  const sm={mpesa:'M-Pesa payment received! Your order is being processed.',airtel:'Airtel Money received! Your order is being processed.',card:'Card payment authorised! Your order is on its way.',paypal:'PayPal payment confirmed! Your order is being processed.',bank:'Order placed! Transfer using reference '+ref+'. We confirm within 1–2 business days.'};
+  document.getElementById('payProcessing').style.display='none';
+  document.getElementById('paySuccess').style.display='block';
+  document.getElementById('successTitle').textContent=method==='bank'?'Order Placed — Awaiting Transfer':'Payment Confirmed! 🎉';
+  document.getElementById('successMsg').textContent=customMsg||sm[method];
+  document.getElementById('orderRef').textContent=ref;
+  cart=[];geoLoc.order=null;
+  document.getElementById('orderLocStatus').textContent='';document.getElementById('orderLocStatus').className='loc-status';
+  updateCartUI();updateAdmin();updateDashboard();renderShop();renderFeatured();saveDB();
+}
+
+function backToCheckoutWithError(msg){
+  document.getElementById('payProcessing').style.display='none';
+  document.getElementById('payStep1').style.display='block';
+  showToast(msg);
+}
+
+async function processPayment(method){
+  const subtotal=cartTotal();
+  const fee=calcDeliveryFee(fulfillMethod,subtotal);
+  const total=subtotal+fee;
+  const name=document.getElementById('checkoutName').value.trim();
+  const phone=document.getElementById('checkoutPhone').value.trim();
+  const address=fulfillMethod==='delivery'?document.getElementById('checkoutAddress').value.trim():'';
+  if(!name||!phone){showToast('⚠️ Please fill in your name and phone number');return;}
+  if(fulfillMethod==='delivery'&&!address){showToast('⚠️ Please enter a delivery address, or switch to Pickup');return;}
+  let mpesaPhone;
+  if(method==='mpesa'){mpesaPhone=document.getElementById('mpesaPhone').value.trim();if(!mpesaPhone||mpesaPhone.length<9){showToast('⚠️ Enter a valid M-Pesa number');return;}}
+  if(method==='airtel'){const ph=document.getElementById('airtelPhone').value.trim();if(!ph||ph.length<9){showToast('⚠️ Enter a valid Airtel number');return;}}
+  if(method==='card'){if(!document.getElementById('cardNum').value.trim()||!document.getElementById('cardExp').value.trim()||!document.getElementById('cardCvv').value.trim()){showToast('⚠️ Fill in all card details');return;}}
+
+  document.getElementById('payStep1').style.display='none';
+  document.getElementById('payProcessing').style.display='block';
+  const msgs={mpesa:{t:'Sending M-Pesa STK Push…',s:'Check your Safaricom phone and enter your PIN.'},airtel:{t:'Sending Airtel Money prompt…',s:'Check your Airtel phone and confirm.'},card:{t:'Processing card payment…',s:'Verifying your card securely.'},paypal:{t:'Connecting to PayPal…',s:'Redirecting you to PayPal.'},bank:{t:'Recording your order…',s:'Please complete the bank transfer shown.'}};
+  document.getElementById('processingMsg').textContent=msgs[method].t;
+  document.getElementById('processingSubMsg').textContent=msgs[method].s;
+
+  if(method==='mpesa'){
+    // REAL flow: talk to the Daraja backend (server.js) and wait for the
+    // actual Safaricom callback result — no fake success here.
+    const myToken=++mpesaPollToken;
+    const orderRef='HM-'+Date.now().toString(36).toUpperCase();
+    let stk, res;
+    try{
+      res=await fetch(MPESA_API_BASE+'/api/mpesa/stkpush',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({phone:mpesaPhone,amount:total,orderRef})
+      });
+    }catch(networkErr){
+      // fetch() itself threw — the request never reached the backend at all
+      // (server not running, wrong port/URL, or CORS blocked it).
+      console.error('STK push network error:',networkErr);
+      backToCheckoutWithError('⚠️ Could not reach '+MPESA_API_BASE+'. Is `node server.js` running, and does the page origin match CORS_ORIGIN in .env?');
+      return;
+    }
+    try{
+      stk=await res.json();
+    }catch(parseErr){
+      backToCheckoutWithError('⚠️ Backend responded but sent something unexpected (HTTP '+res.status+'). Check the server.js terminal for details.');
+      return;
+    }
+    if(!res.ok){
+      // The backend WAS reached — it just returned an error, most often
+      // Safaricom rejecting the request. Surface the real reason instead
+      // of pretending we couldn't reach anything.
+      const detail=stk?.detail?.errorMessage||stk?.detail?.error_description||stk?.error||('HTTP '+res.status);
+      console.error('STK push rejected by backend/Safaricom:',stk);
+      backToCheckoutWithError('❌ M-Pesa rejected the request: '+detail);
+      return;
+    }
+
+    document.getElementById('processingSubMsg').textContent='Sent! Enter your M-Pesa PIN on your phone — waiting for confirmation…';
+
+    const checkoutRequestId=stk.checkoutRequestId;
+    const startedAt=Date.now();
+    const POLL_MS=3000, TIMEOUT_MS=90000;
+    const poll=async()=>{
+      if(myToken!==mpesaPollToken) return; // superseded by a newer payment attempt
+      let status;
+      try{
+        const r=await fetch(MPESA_API_BASE+'/api/mpesa/status/'+checkoutRequestId);
+        status=await r.json();
+      }catch(e){
+        backToCheckoutWithError('⚠️ Lost connection to the M-Pesa service.');
+        return;
+      }
+      if(myToken!==mpesaPollToken) return;
+      if(status.status==='success'){
+        const ref=await finalizeOrder('mpesa',total,fee,subtotal,name,phone,address,{
+          mpesaReceiptNumber:status.mpesaReceiptNumber,checkoutRequestId
+        });
+        showPaySuccess('mpesa',ref,'M-Pesa payment received! Receipt: '+status.mpesaReceiptNumber);
+        return;
+      }
+      if(status.status==='failed'){
+        backToCheckoutWithError('❌ M-Pesa payment '+(status.resultDesc||'was not completed')+'. Please try again.');
+        return;
+      }
+      if(Date.now()-startedAt>TIMEOUT_MS){
+        backToCheckoutWithError('⏱️ Still waiting on M-Pesa — if you approved it on your phone, check My Account shortly. Otherwise try again.');
+        return;
+      }
+      setTimeout(poll,POLL_MS);
+    };
+    setTimeout(poll,POLL_MS);
+    return;
+  }
+
+  // Simulated flow — no real backend exists yet for these methods.
+  const delay=method==='bank'?1200:2600;
+  setTimeout(async()=>{
+    const ref=await finalizeOrder(method,total,fee,subtotal,name,phone,address);
+    showPaySuccess(method,ref);
+  },delay);
+}
+
+/* =========================================================
+   ORDER STATUS / DELIVERY TRACKING
+   ========================================================= */
+const DELIVERY_STEPS=[
+  {key:'placed',label:'Order Placed',icon:'🧾'},
+  {key:'preparing',label:'Preparing',icon:'📦'},
+  {key:'out_for_delivery',label:'Out for Delivery',icon:'🚚'},
+  {key:'delivered',label:'Delivered',icon:'✅'}
+];
+const PICKUP_ORDER_STEPS=[
+  {key:'placed',label:'Order Placed',icon:'🧾'},
+  {key:'preparing',label:'Preparing',icon:'📦'},
+  {key:'ready_for_pickup',label:'Ready for Pickup',icon:'🏬'},
+  {key:'picked_up',label:'Picked Up',icon:'✅'}
+];
+function getSteps(o){return o.fulfillMethod==='pickup'?PICKUP_ORDER_STEPS:DELIVERY_STEPS;}
+function stepIndex(o){return getSteps(o).findIndex(s=>s.key===o.status);}
+
+function setOrderStatus(ref,status){
+  const o=orders.find(x=>x.ref===ref);
+  if(!o) return;
+  o.status=status;
+  if(status==='out_for_delivery') o.dispatchedAt=Date.now();
+  if(status==='delivered'||status==='picked_up') o.deliveredAt=Date.now();
+  logAct(status==='out_for_delivery'?'🚚':(status==='delivered'||status==='picked_up')?'✅':'📦',
+    'Order '+ref+' marked: '+getSteps(o).find(s=>s.key===status).label,'order');
+  saveDB();
+  updateAdmin();updateDashboard();
+  if(currentTrackRef===ref) renderTrackBox(o);
+}
+
+function orderRowHTML(o,isAdmin){
+  const steps=getSteps(o);
+  const idx=stepIndex(o);
+  const stepLabel=steps[idx]?steps[idx].label:o.status;
+  let actions='';
+  if(isAdmin){
+    if(o.fulfillMethod==='pickup'){
+      if(o.status==='placed') actions+=`<button class="mini-btn" onclick="setOrderStatus('${o.ref}','preparing')">Mark Preparing</button>`;
+      if(o.status==='preparing'||o.status==='placed') actions+=`<button class="mini-btn primary" onclick="setOrderStatus('${o.ref}','ready_for_pickup')">Ready for Pickup 🏬</button>`;
+      if(o.status==='ready_for_pickup') actions+=`<button class="mini-btn primary" onclick="setOrderStatus('${o.ref}','picked_up')">Mark Picked Up ✅</button>`;
+    }else{
+      if(o.status==='placed') actions+=`<button class="mini-btn" onclick="setOrderStatus('${o.ref}','preparing')">Mark Preparing</button>`;
+      if(o.status==='preparing'||o.status==='placed') actions+=`<button class="mini-btn primary" onclick="setOrderStatus('${o.ref}','out_for_delivery')">Dispatch 🚚</button>`;
+      if(o.status==='out_for_delivery') actions+=`<button class="mini-btn primary" onclick="setOrderStatus('${o.ref}','delivered')">Mark Delivered ✅</button>`;
+    }
+  }
+  actions+=`<button class="mini-btn" onclick="openTrackOrder('${o.ref}')">View ${o.fulfillMethod==='pickup'?'Status':'Map'}</button>`;
+  const feeNote=o.deliveryFee?` + KES ${o.deliveryFee.toLocaleString()} delivery`:'';
+  return `<div class="order-row">
+    <div class="or-main">
+      <div class="or-ref">${o.ref} <span class="status-pill ${o.status}">${stepLabel}</span> ${o.fulfillMethod==='pickup'?'<span class="status-pill" style="background:rgba(160,133,84,.1);color:var(--gold-light);border:1px solid rgba(160,133,84,.25);">🏬 Pickup</span>':''}</div>
+      <div class="or-meta">${o.customerName||'Customer'} · KES ${(o.subtotal||o.total).toLocaleString()}${feeNote} · ${o.deliveryAddress||'No address'} · ${o.paymentMethod.toUpperCase()}</div>
+    </div>
+    <div class="or-actions">${actions}</div>
+  </div>`;
+}
+
+function renderOrdersLists(){
+  const adminBox=document.getElementById('adminOrdersList');
+  const myBox=document.getElementById('myOrdersList');
+  if(adminBox) adminBox.innerHTML=orders.length?orders.map(o=>orderRowHTML(o,true)).join(''):'<div class="empty-note">No orders placed from this browser yet.</div>';
+  if(myBox) myBox.innerHTML=orders.length?orders.map(o=>orderRowHTML(o,false)).join(''):'<div class="empty-note">No orders yet — your purchases will appear here with live delivery tracking.</div>';
+}
+
+function lerp(a,b,t){return a+(b-a)*t;}
+function getCourierPosition(o){
+  if(o.fulfillMethod==='pickup') return {...SHOP_LOC};
+  if(o.status==='placed'||o.status==='preparing') return {...SHOP_LOC};
+  if(!o.deliveryLat||!o.deliveryLng) return {...SHOP_LOC};
+  if(o.status==='delivered') return {lat:o.deliveryLat,lng:o.deliveryLng};
+  // out_for_delivery: interpolate based on elapsed time
+  const elapsed=Date.now()-(o.dispatchedAt||Date.now());
+  let t=Math.min(1,Math.max(0,elapsed/DELIVERY_DEMO_MS));
+  if(t>=1){
+    // auto-complete delivery
+    o.status='delivered';o.deliveredAt=Date.now();saveDB();updateAdmin();updateDashboard();
+    return {lat:o.deliveryLat,lng:o.deliveryLng};
+  }
+  return {lat:lerp(SHOP_LOC.lat,o.deliveryLat,t),lng:lerp(SHOP_LOC.lng,o.deliveryLng,t)};
+}
+
+function openTrackOrder(ref){
+  if(!ref){showToast('⚠️ No order to track yet');return;}
+  const o=orders.find(x=>x.ref===ref);
+  if(!o){showToast('⚠️ Order not found');return;}
+  currentTrackRef=ref;
+  document.getElementById('trackOverlay').classList.add('open');
+  renderTrackBox(o);
+  if(trackPollTimer) clearInterval(trackPollTimer);
+  trackPollTimer=setInterval(()=>{
+    const live=orders.find(x=>x.ref===ref);
+    if(live) renderTrackBox(live);
+  },2000);
+}
+function closeTrackOrder(){
+  document.getElementById('trackOverlay').classList.remove('open');
+  currentTrackRef=null;
+  if(trackPollTimer){clearInterval(trackPollTimer);trackPollTimer=null;}
+}
+
+function renderTrackBox(o){
+  const isPickup=o.fulfillMethod==='pickup';
+  document.getElementById('trackRefTitle').textContent='Order '+o.ref;
+  document.getElementById('trackSubtitle').textContent=isPickup?'Pickup at Harmony Music Store, Nairobi CBD':(o.deliveryAddress?('Delivering to: '+o.deliveryAddress):'Live status of your delivery');
+
+  const steps=getSteps(o);
+  const idx=stepIndex(o);
+  document.getElementById('trackTimeline').innerHTML=steps.map((s,i)=>{
+    const cls=i<idx?'done':(i===idx?'active':'');
+    return `<div class="track-step ${cls}"><div class="line"></div><div class="dot">${i<=idx?s.icon:''}</div><span>${s.label}</span></div>`;
+  }).join('');
+
+  let eta='';
+  if(isPickup){
+    if(o.status==='ready_for_pickup') eta=`<span>🏬 Ready for collection at the shop</span><span></span>`;
+    else if(o.status==='picked_up') eta=`<span>✅ Picked up</span><span>${o.deliveredAt?new Date(o.deliveredAt).toLocaleTimeString('en-KE'):''}</span>`;
+    else if(o.status==='preparing') eta=`<span>📦 Preparing your order at the shop</span><span></span>`;
+    else eta=`<span>🧾 Order received — awaiting preparation</span><span></span>`;
+  }else if(o.status==='out_for_delivery'){
+    const elapsed=Date.now()-(o.dispatchedAt||Date.now());
+    const remainMs=Math.max(0,DELIVERY_DEMO_MS-elapsed);
+    const remainMin=Math.ceil(remainMs/60000);
+    eta=`<span>🚚 On the way</span><span>ETA: <strong>~${remainMin} min</strong></span>`;
+  }else if(o.status==='delivered'){
+    eta=`<span>✅ Delivered</span><span>${o.deliveredAt?new Date(o.deliveredAt).toLocaleTimeString('en-KE'):''}</span>`;
+  }else if(o.status==='preparing'){
+    eta=`<span>📦 Preparing your order at the shop</span><span></span>`;
+  }else{
+    eta=`<span>🧾 Order received — awaiting preparation</span><span></span>`;
+  }
+  document.getElementById('trackEtaLine').innerHTML=eta;
+
+  renderTrackMap(o);
+}
+
+function renderTrackMap(o){
+  const hasDest=o.deliveryLat&&o.deliveryLng;
+  if(!trackMapObj){
+    trackMapObj=L.map('trackMap',{zoomControl:true,attributionControl:false}).setView([SHOP_LOC.lat,SHOP_LOC.lng],12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(trackMapObj);
+    trackMarkers.shop=L.marker([SHOP_LOC.lat,SHOP_LOC.lng],{title:'Shop'}).addTo(trackMapObj).bindPopup("🎵 Harmony Music Store");
+  }
+  const courier=getCourierPosition(o);
+  if(!trackMarkers.courier){
+    trackMarkers.courier=L.marker([courier.lat,courier.lng],{title:'Delivery'}).addTo(trackMapObj).bindPopup('🚚 Delivery status: '+o.status.replace(/_/g,' '));
+  }else{
+    trackMarkers.courier.setLatLng([courier.lat,courier.lng]);
+    trackMarkers.courier.setPopupContent('🚚 Delivery status: '+o.status.replace(/_/g,' '));
+  }
+  if(hasDest){
+    if(!trackMarkers.dest){
+      trackMarkers.dest=L.marker([o.deliveryLat,o.deliveryLng],{title:'Delivery address'}).addTo(trackMapObj).bindPopup('📍 '+(o.deliveryAddress||'Delivery address'));
+    }else{
+      trackMarkers.dest.setLatLng([o.deliveryLat,o.deliveryLng]);
+    }
+    if(trackMarkers.route) trackMapObj.removeLayer(trackMarkers.route);
+    trackMarkers.route=L.polyline([[SHOP_LOC.lat,SHOP_LOC.lng],[o.deliveryLat,o.deliveryLng]],{color:'#a08554',weight:2,dashArray:'4,6'}).addTo(trackMapObj);
+    trackMapObj.fitBounds([[SHOP_LOC.lat,SHOP_LOC.lng],[o.deliveryLat,o.deliveryLng]],{padding:[30,30]});
+  }else{
+    trackMapObj.setView([SHOP_LOC.lat,SHOP_LOC.lng],13);
+  }
+  setTimeout(()=>{ if(trackMapObj) trackMapObj.invalidateSize(); },150);
+}
+
+/* =========================================================
+   REPAIRS
+   ========================================================= */
+const REPAIR_STEPS=[
+  {key:'requested',label:'Requested',icon:'🧾'},
+  {key:'picked_up',label:'Picked Up',icon:'📦'},
+  {key:'in_progress',label:'In Progress',icon:'🔧'},
+  {key:'completed',label:'Completed',icon:'✅'}
+];
+function repairStepIndex(status){return REPAIR_STEPS.findIndex(s=>s.key===status);}
+
+function setRepairStatus(id,status){
+  const r=repairs.find(x=>x.id===id);
+  if(!r) return;
+  r.status=status;r.updatedAt=Date.now();
+  logAct('🔧','Repair '+r.item+' marked: '+REPAIR_STEPS.find(s=>s.key===status).label,'repair');
+  saveDB();updateAdmin();updateDashboard();
+}
+
+function repairRowHTML(r,isAdmin){
+  const idx=repairStepIndex(r.status);
+  let actions='';
+  if(isAdmin){
+    if(r.status==='requested') actions+=`<button class="mini-btn" onclick="setRepairStatus('${r.id}','picked_up')">Mark Picked Up</button>`;
+    if(r.status==='picked_up') actions+=`<button class="mini-btn" onclick="setRepairStatus('${r.id}','in_progress')">Start Work</button>`;
+    if(r.status==='in_progress') actions+=`<button class="mini-btn primary" onclick="setRepairStatus('${r.id}','completed')">Mark Completed ✅</button>`;
+  }
+  if(r.pickupLat&&r.pickupLng) actions+=`<button class="mini-btn" onclick="openRepairMap('${r.id}')">View Map</button>`;
+  return `<div class="order-row">
+    <div class="or-main">
+      <div class="or-ref">${r.item} <span class="status-pill ${r.status}">${REPAIR_STEPS[idx].label}</span></div>
+      <div class="or-meta">${r.name||'Customer'} · ${r.issue} · ${r.pickupAddress||'No address'}</div>
+    </div>
+    <div class="or-actions">${actions}</div>
+  </div>`;
+}
+function renderRepairsLists(){
+  const adminBox=document.getElementById('adminRepairsList');
+  const myBox=document.getElementById('myRepairsList');
+  if(adminBox) adminBox.innerHTML=repairs.length?repairs.map(r=>repairRowHTML(r,true)).join(''):'<div class="empty-note">No repair requests from this browser yet.</div>';
+  if(myBox) myBox.innerHTML=repairs.length?repairs.map(r=>repairRowHTML(r,false)).join(''):'<div class="empty-note">No repair requests yet.</div>';
+}
+function openRepairMap(id){
+  const r=repairs.find(x=>x.id===id);
+  if(!r||!r.pickupLat){showToast('⚠️ No location pinned for this repair');return;}
+  currentTrackRef=null;
+  document.getElementById('trackOverlay').classList.add('open');
+  document.getElementById('trackRefTitle').textContent='Repair Pickup — '+r.item;
+  document.getElementById('trackSubtitle').textContent=r.pickupAddress||'Pickup location';
+  const idx=repairStepIndex(r.status);
+  document.getElementById('trackTimeline').innerHTML=REPAIR_STEPS.map((s,i)=>{
+    const cls=i<idx?'done':(i===idx?'active':'');
+    return `<div class="track-step ${cls}"><div class="line"></div><div class="dot">${i<=idx?s.icon:''}</div><span>${s.label}</span></div>`;
+  }).join('');
+  document.getElementById('trackEtaLine').innerHTML=`<span>🔧 Status: ${REPAIR_STEPS[idx].label}</span><span></span>`;
+  if(!trackMapObj){
+    trackMapObj=L.map('trackMap',{zoomControl:true,attributionControl:false}).setView([SHOP_LOC.lat,SHOP_LOC.lng],12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(trackMapObj);
+    trackMarkers.shop=L.marker([SHOP_LOC.lat,SHOP_LOC.lng],{title:'Shop'}).addTo(trackMapObj).bindPopup("🎵 Harmony Music Store");
+  }
+  if(!trackMarkers.dest){
+    trackMarkers.dest=L.marker([r.pickupLat,r.pickupLng],{title:'Pickup'}).addTo(trackMapObj).bindPopup('📍 '+(r.pickupAddress||'Pickup location'));
+  }else{
+    trackMarkers.dest.setLatLng([r.pickupLat,r.pickupLng]);
+  }
+  if(trackMarkers.route) trackMapObj.removeLayer(trackMarkers.route);
+  trackMarkers.route=L.polyline([[SHOP_LOC.lat,SHOP_LOC.lng],[r.pickupLat,r.pickupLng]],{color:'#a08554',weight:2,dashArray:'4,6'}).addTo(trackMapObj);
+  trackMapObj.fitBounds([[SHOP_LOC.lat,SHOP_LOC.lng],[r.pickupLat,r.pickupLng]],{padding:[30,30]});
+  setTimeout(()=>{ if(trackMapObj) trackMapObj.invalidateSize(); },150);
+}
+
+/* =========================================================
+   LESSONS / REPAIR FORM / BULK / MESSAGES
+   ========================================================= */
+const LESSON_STEPS=[
+  {key:'requested',label:'Requested',icon:'🧾'},
+  {key:'confirmed',label:'Confirmed',icon:'📅'},
+  {key:'completed',label:'Completed',icon:'✅'}
+];
+function lessonStepIndex(status){return LESSON_STEPS.findIndex(s=>s.key===status);}
+
+function setLessonStatus(id,status){
+  const l=lessons.find(x=>x.id===id);
+  if(!l) return;
+  l.status=status;l.updatedAt=Date.now();
+  const label=status==='cancelled'?'Cancelled':LESSON_STEPS.find(s=>s.key===status).label;
+  logAct('🎓','Lesson for '+l.name+' ('+l.type+') marked: '+label,'lesson');
+  saveDB();updateAdmin();updateDashboard();
+}
+
+function lessonRowHTML(l,isAdmin){
+  const cancelled=l.status==='cancelled';
+  const idx=lessonStepIndex(l.status);
+  const label=cancelled?'Cancelled':(LESSON_STEPS[idx]?LESSON_STEPS[idx].label:l.status);
+  let actions='';
+  if(isAdmin&&!cancelled){
+    if(l.status==='requested') actions+=`<button class="mini-btn primary" onclick="setLessonStatus('${l.id}','confirmed')">Confirm 📅</button>`;
+    if(l.status==='confirmed') actions+=`<button class="mini-btn primary" onclick="setLessonStatus('${l.id}','completed')">Mark Completed ✅</button>`;
+    if(l.status!=='completed') actions+=`<button class="mini-btn" onclick="setLessonStatus('${l.id}','cancelled')">Cancel</button>`;
+  }
+  return `<div class="order-row">
+    <div class="or-main">
+      <div class="or-ref">${l.type} lesson <span class="status-pill ${cancelled?'cancelled':l.status}">${label}</span></div>
+      <div class="or-meta">${l.name||'Student'} · ${l.date||'No date'}${l.time?' at '+l.time:''} · ${l.phone||'No phone'}${l.notes?' · '+l.notes:''}</div>
+    </div>
+    <div class="or-actions">${actions}</div>
+  </div>`;
+}
+
+function renderLessonsLists(){
+  const adminBox=document.getElementById('adminLessonsList');
+  const myBox=document.getElementById('myLessonsList');
+  if(adminBox) adminBox.innerHTML=lessons.length?lessons.map(l=>lessonRowHTML(l,true)).join(''):'<div class="empty-note">No lesson bookings from this browser yet.</div>';
+  if(myBox) myBox.innerHTML=lessons.length?lessons.map(l=>lessonRowHTML(l,false)).join(''):'<div class="empty-note">No lessons booked yet.</div>';
+}
+
+function prefillLesson(type){document.getElementById('lessonType').value=type;showPage('lessons',document.querySelectorAll('.nav-link')[2]);setTimeout(()=>document.getElementById('lessonName').focus(),300);}
+async function bookLesson(){
+  const type=document.getElementById('lessonType').value,name=document.getElementById('lessonName').value.trim(),phone=document.getElementById('lessonPhone').value.trim(),date=document.getElementById('lessonDate').value,time=document.getElementById('lessonTime').value,notes=document.getElementById('lessonNotes').value.trim();
+  const msg=document.getElementById('lessonMsg');
+  if(!name||!phone||!date||!time){msg.className='form-msg err';msg.textContent='⚠️ Please fill in your name, phone, date and time — we need a phone number to confirm your slot.';return;}
+  if(phone.replace(/\D/g,'').length<9){msg.className='form-msg err';msg.textContent='⚠️ Enter a valid phone number.';return;}
+  const todayStr=new Date().toISOString().slice(0,10);
+  if(date<todayStr){msg.className='form-msg err';msg.textContent='⚠️ Please choose a date that hasn\'t already passed.';return;}
+  const lesson={id:'lesson'+Date.now(),type,name,phone,date,time,notes,status:'requested',createdAt:Date.now()};
+  lessons.push(lesson); // private
+  totalLessons++; // shared count only, no personal data
+  msg.className='form-msg ok';msg.textContent='✅ '+type+' lesson requested for '+date+' at '+time+'! We\'ll call to confirm — track it any time from My Account.';
+  logAct('🎓',type+' lesson — '+name+' on '+date,'lesson');
+  logSharedAct('🎓','New '+type+' lesson booked','lesson');
+  await apiCall('/lessons',{method:'POST',body:JSON.stringify(lesson)});
+  ['lessonName','lessonPhone','lessonDate','lessonTime','lessonNotes'].forEach(id=>document.getElementById(id).value='');
+  updateAdmin();updateDashboard();saveDB();
+}
+async function submitRepair(){
+  const name=document.getElementById('repairName').value.trim();
+  const item=document.getElementById('repairItem').value.trim(),issue=document.getElementById('repairIssue').value.trim(),phone=document.getElementById('repairPhone').value.trim();
+  const address=document.getElementById('repairAddress').value.trim();
+  const msg=document.getElementById('repairMsg');
+  if(!item||!issue){msg.className='form-msg err';msg.textContent='⚠️ Please fill in instrument and issue.';return;}
+  const loc=geoLoc.repair;
+  const repair={
+    id:'rep'+Date.now(),name,item,issue,phone,
+    pickupAddress:address,
+    pickupLat:loc?loc.lat:null,pickupLng:loc?loc.lng:null,
+    status:'requested',createdAt:Date.now(),updatedAt:Date.now()
+  };
+  repairs.unshift(repair); // private
+  totalRepairs++; // shared count only
+  msg.className='form-msg ok';msg.textContent='✅ Repair request for "'+item+'" submitted!';
+  logAct('🔧','Repair: '+item,'repair');
+  logSharedAct('🔧','New repair request: '+item,'repair');
+  await apiCall('/repairs',{method:'POST',body:JSON.stringify(repair)});
+  ['repairName','repairItem','repairIssue','repairPhone','repairAddress'].forEach(id=>document.getElementById(id).value='');
+  geoLoc.repair=null;
+  document.getElementById('repairLocStatus').textContent='';document.getElementById('repairLocStatus').className='loc-status';
+  updateAdmin();updateDashboard();saveDB();
+}
+function calcBulk(){
+  const qty=parseInt(document.getElementById('bulkQty').value),type=document.getElementById('bulkType').value;
+  const box=document.getElementById('bulkResult');
+  if(!qty||qty<1){showToast('⚠️ Enter a valid quantity');return;}
+  let d=0,m='';
+  if(qty>=20){d=20;m='20% off for 20+ instruments.';}
+  else if(qty>=10){d=15;m='15% off for 10–19 instruments.';}
+  else if(qty>=5){d=10;m='10% off for 5–9 instruments.';}
+  else{d=0;m='Order 5+ instruments to unlock bulk discounts.';}
+  document.getElementById('bulkDiscountPct').textContent=d>0?d+'% Discount!':'No Discount Yet';
+  document.getElementById('bulkDiscountMsg').textContent=qty+'x '+type+' — '+m;
+  box.style.display='block';
+}
+async function sendMessage(){
+  const name=document.getElementById('msgName').value.trim(),email=document.getElementById('msgEmail').value.trim(),body=document.getElementById('msgBody').value.trim();
+  const el=document.getElementById('msgSuccess');
+  if(!name||!email||!body){el.className='form-msg err';el.textContent='⚠️ Please fill in all fields.';return;}
+  const message={name,email,body,createdAt:Date.now()};
+  messages.push(message); // private
+  totalMessages++; // shared count only, no personal data
+  el.className='form-msg ok';el.textContent="✅ Message sent, "+name+"! We'll reply within 24 hours.";
+  logAct('✉️','Message from '+name,'message');
+  logSharedAct('✉️','New contact message received','message');
+  await apiCall('/messages',{method:'POST',body:JSON.stringify(message)});
+  ['msgName','msgEmail','msgBody'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('msgSubject').selectedIndex=0;
+  setTimeout(()=>{el.className='form-msg';el.textContent='';},6000);
+  updateAdmin();saveDB();
+}
+function subscribeNewsletter(){
+  const email=document.getElementById('nlEmail').value.trim();
+  if(!email||!email.includes('@')){showToast('⚠️ Enter a valid email address.');return;}
+  showToast("✅ Subscribed! Welcome to Harmony Music family.");
+  document.getElementById('nlEmail').value='';
+}
+function updateInventory(){
+  const box=document.getElementById('inventoryList');
+  if(!box) return;
+  box.innerHTML=products.map(p=>`<div class="activity-item">
+    <div class="act-icon">${p.icon}</div>
+    <div class="act-info">${p.name}</div>
+    <span class="${p.stock<=3?'act-badge':'act-time'}" style="${p.stock<=3?'background:rgba(200,36,36,.2);color:#e05050;border-color:rgba(200,36,36,.3);':'color:var(--text-dim)'}">Stock: ${p.stock}</span>
+  </div>`).join('');
+}
+async function addProduct(){
+  const name=document.getElementById('newProdName').value.trim(),brand=document.getElementById('newProdBrand').value.trim(),cat=document.getElementById('newProdCat').value,price=parseInt(document.getElementById('newProdPrice').value),stock=parseInt(document.getElementById('newProdStock').value),desc=document.getElementById('newProdDesc').value.trim();
+  const image=document.getElementById('newProdImage').value.trim();
+  const msg=document.getElementById('addProdMsg');
+  if(!name||!brand||!price||!stock||!desc){msg.className='form-msg err';msg.textContent='⚠️ Please fill in all fields.';return;}
+  const icons={keyboard:'🎹',piano:'🎼',guitar:'🎸'};
+  const product={id:'p'+Date.now(),name,brand,category:cat,price,stock,icon:icons[cat],image:image||null,badge:'New',badgeType:'new',desc};
+  products.push(product); // shared/global — product catalog has no personal data
+  msg.className='form-msg ok';msg.textContent='✅ "'+name+'" added to the store!';
+  logSharedAct('➕','New product: '+name+' — KES '+price.toLocaleString(),'product');
+  await apiCall('/products',{method:'POST',body:JSON.stringify(product)});
+  ['newProdName','newProdBrand','newProdPrice','newProdStock','newProdDesc','newProdImage'].forEach(id=>document.getElementById(id).value='');
+  renderFeatured();renderShop();saveDB();
+}
+function logAct(icon,text,type){const time=new Date().toLocaleTimeString('en-KE',{hour:'2-digit',minute:'2-digit'});activityLog.unshift({icon,text,type,time});}
+function logSharedAct(icon,text,type){const time=new Date().toLocaleTimeString('en-KE',{hour:'2-digit',minute:'2-digit'});sharedActivityLog.unshift({icon,text,type,time});if(sharedActivityLog.length>100) sharedActivityLog.length=100;}
+function updateDashboard(){
+  document.getElementById('dash-orders').textContent=orders.length;
+  document.getElementById('dash-lessons').textContent=lessons.length;
+  document.getElementById('dash-repairs').textContent=repairs.length;
+  document.getElementById('dash-wishlist').textContent=wishlist.length;
+  const list=document.getElementById('activityList');
+  if(activityLog.length) list.innerHTML=activityLog.slice(0,10).map(a=>`<div class="activity-item"><div class="act-icon">${a.icon}</div><div class="act-info">${a.text}</div><span class="act-time">${a.time}</span></div>`).join('');
+  renderOrdersLists();renderLessonsLists();renderRepairsLists();
+}
+function updateAdmin(){
+  updateInventory();
+  document.getElementById('admin-sales').textContent='KES '+totalSales.toLocaleString();
+  document.getElementById('admin-orders').textContent=totalOrders;
+  document.getElementById('admin-lessons').textContent=totalLessons;
+  document.getElementById('admin-repairs').textContent=totalRepairs;
+  document.getElementById('admin-wishlists').textContent=wishlist.length;
+  document.getElementById('admin-messages').textContent=totalMessages;
+  const log2=document.getElementById('adminLog');
+  if(sharedActivityLog.length) log2.innerHTML=sharedActivityLog.map(a=>`<div class="activity-item"><div class="act-icon">${a.icon}</div><div class="act-info">${a.text}</div><span class="act-badge">${a.type}</span><span class="act-time">${a.time}</span></div>`).join('');
+  renderOrdersLists();renderLessonsLists();renderRepairsLists();
+}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+
+/* =========================================================
+   AI ASSISTANT CHATBOT
+   Right now this runs on simple keyword matching against LIVE
+   store data (products, lessons, delivery policy). To upgrade
+   to a real AI model, see the GEMINI API HOOK inside
+   aiGetAnswer() below — that is the only function you need to
+   change.
+   ========================================================= */
+const LESSON_PRICES={Piano:'KES 5,000 / month',Guitar:'KES 4,500 / month','Music Theory':'KES 3,000 / month','Church Worship':'KES 6,000 / month'};
+let aiChatStarted=false;
+
+function toggleAiChat(){
+  const panel=document.getElementById('aiChatPanel');
+  const opening=!panel.classList.contains('open');
+  panel.classList.toggle('open');
+  if(opening&&!aiChatStarted){
+    aiChatStarted=true;
+    aiAddMessage("Hi! I'm the Harmony assistant. Ask me about instruments, lessons, repairs, or an order — I can see what's actually in stock right now.","bot");
+  }
+}
+
+function aiAddMessage(text,sender){
+  const log=document.getElementById('aiChatLog');
+  const div=document.createElement('div');
+  div.className='ai-msg '+sender;
+  div.textContent=text;
+  log.appendChild(div);
+  log.scrollTop=log.scrollHeight;
+  return div;
+}
+
+function aiSendFromInput(){
+  const input=document.getElementById('aiChatInput');
+  const val=input.value.trim();
+  if(!val) return;
+  input.value='';
+  aiHandleQuestion(val);
+}
+
+async function aiHandleQuestion(question){
+  aiAddMessage(question,'user');
+  const typingEl=aiAddMessage('typing…','typing bot');
+  const answer=await aiGetAnswer(question);
+  typingEl.remove();
+  aiAddMessage(answer,'bot');
+}
+
+/* Builds a fresh snapshot of the live store data every time a
+   question is asked, so answers always reflect current stock,
+   prices, and any products added via the Admin panel. */
+function aiBuildStoreContext(){
+  return {
+    products:products.map(p=>({name:p.name,brand:p.brand,category:p.category,price:p.price,stock:p.stock})),
+    lessonPrices:LESSON_PRICES,
+    deliveryPolicy:{
+      flatFee:'KES '+DELIVERY_FEE,
+      freeOver:'KES '+FREE_DELIVERY_THRESHOLD.toLocaleString()+' (Nairobi)',
+      pickupOption:'Pickup at Harmony Music Store, Nairobi CBD (Mon–Sat, 9am–6pm)'
+    },
+    paymentMethods:['M-Pesa','Airtel Money','Card','PayPal','Bank Transfer'],
+    bulkDiscounts:'10% off 5-9 units, 15% off 10-19 units, 20% off 20+ units',
+    repairService:'Drop off or share pickup location in the Lessons page; repair status moves Requested → Picked Up → In Progress → Completed'
+  };
+}
+
+/* =========================================================
+   THIS IS THE ONLY FUNCTION TO CHANGE TO GO FROM MOCK -> REAL AI.
+   It currently matches keywords against live store data. The
+   real Gemini call is written out in the comment below it.
+   ========================================================= */
+async function aiGetAnswer(question){
+  await new Promise(r=>setTimeout(r,500)); // simulate thinking time
+  const ctx=aiBuildStoreContext();
+  const q=question.toLowerCase();
+
+  if(q.includes('guitar')){
+    const items=ctx.products.filter(p=>p.category==='guitar');
+    if(!items.length) return "We don't have any guitars listed right now — check back soon!";
+    return items.map(p=>`${p.name} (${p.brand}) — KES ${p.price.toLocaleString()}, ${p.stock>0?p.stock+' in stock':'out of stock'}`).join('. ');
+  }
+  if(q.includes('keyboard')||q.includes('piano')){
+    const wantsPiano=q.includes('piano')&&!q.includes('keyboard');
+    const items=ctx.products.filter(p=>wantsPiano?p.category==='piano':(p.category==='keyboard'||p.category==='piano'));
+    return items.slice(0,4).map(p=>`${p.name} — KES ${p.price.toLocaleString()} (${p.stock} in stock)`).join('. ');
+  }
+  if(q.includes('lesson')){
+    const type=Object.keys(ctx.lessonPrices).find(t=>q.includes(t.toLowerCase()));
+    if(type) return `${type} lessons are ${ctx.lessonPrices[type]}. You can book one on the Lessons page.`;
+    return 'Our lessons: '+Object.entries(ctx.lessonPrices).map(([t,p])=>`${t} (${p})`).join(', ')+'. Book any of them on the Lessons page.';
+  }
+  if(q.includes('deliver')||q.includes('shipping')){
+    return `Delivery is a flat ${ctx.deliveryPolicy.flatFee} in Nairobi, and free on orders over ${ctx.deliveryPolicy.freeOver}. You can also choose ${ctx.deliveryPolicy.pickupOption} at checkout.`;
+  }
+  if(q.includes('repair') || q.includes('fix')){
+    return 'You can submit a repair request from the Lessons page — just describe the issue and optionally share your pickup location. '+ctx.repairService+'.';
+  }
+  if(q.includes('bulk')||q.includes('school')||q.includes('church')){
+    return `For 5+ instruments: ${ctx.bulkDiscounts}. Use the Bulk Order calculator on the Shop page for an exact quote.`;
+  }
+  if(q.includes('pay')||q.includes('mpesa')||q.includes('m-pesa')){
+    return `We accept ${ctx.paymentMethods.join(', ')} at checkout.`;
+  }
+  if(q.includes('stock')||q.includes('available')){
+    const low=ctx.products.filter(p=>p.stock<=3);
+    if(low.length) return 'Running low right now: '+low.map(p=>`${p.name} (${p.stock} left)`).join(', ')+'. Everything else is well stocked.';
+    return 'Everything in our catalog currently has healthy stock levels.';
+  }
+
+  return "I can help with instruments, lesson prices, delivery, repairs, bulk orders, and payment methods — try asking about one of those!";
+
+  /* GEMINI API HOOK — once you have a free API key from Google AI
+     Studio, replace everything above in this function (except the
+     ctx=aiBuildStoreContext() line) with this:
+
+  const prompt = `You are a helpful assistant for Harmony Music Store in Kenya.
+Live store data (JSON): ${JSON.stringify(ctx)}
+Customer question: ${question}
+Answer briefly and ONLY using the data above. If you don't know, say so.`;
+
+  const response = await fetch(
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=YOUR_API_KEY",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+    }
+  );
+  const data = await response.json();
+  return data.candidates[0].content.parts[0].text;
+
+  ⚠️ Do not ship a real API key inside this client-side script on
+  a live site — anyone can view-source and steal it. Route this
+  fetch through your own backend (the Supabase/Node setup already
+  roadmapped for this store) so the key stays server-side, and
+  have the browser call your backend instead of Google directly.
+  */
+}
+
+loadDB();
+
+// Stop the lesson date picker from offering days that have already passed.
+(function(){
+  const d=document.getElementById('lessonDate');
+  if(d) d.min=new Date().toISOString().slice(0,10);
+})();
+</script>
+</body>
+</html>
